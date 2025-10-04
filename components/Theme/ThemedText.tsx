@@ -7,7 +7,10 @@ const getVariantStyle = (colors: typeof Colors.light) => ({
 		color: colors.paragraph,
 		fontFamily: "HossRound",
 	},
-	h1: {},
+	h1: {
+		fontFamily: "HossRound-Bold",
+		fontSize: 24,
+	},
 	h2: {
 		fontFamily: "HossRound-Bold",
 		fontSize: 20,

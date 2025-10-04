@@ -23,7 +23,8 @@ export default function ThemedHeader({ title }: Props) {
 	return (
 		<View style={styles.container}>
 			<ThemedText
-				variant="h3"
+				variant="h1"
+				color="white"
 				style={{
 					paddingBottom: 20,
 					textTransform: "uppercase",

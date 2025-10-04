@@ -4,9 +4,9 @@ import { Stack } from "expo-router";
 
 export default function RootLayout() {
 	const [fontsLoaded] = useFonts({
-		HossRound: require("@/assets/fonts/Hoss_Round_Regular.otf"),
+		HossRound: require("@/assets/fonts/Hoss_Round_Medium.otf"),
 		"HossRound-Light": require("@/assets/fonts/Hoss_Round_Light.otf"),
-		"HossRound-Medium": require("@/assets/fonts/Hoss_Round_Medium.otf"),
+		"HossRound-Regular": require("@/assets/fonts/Hoss_Round_Regular.otf"),
 		"HossRound-Bold": require("@/assets/fonts/Hoss_Round_Bold.otf"),
 		"HossRound-Heavy": require("@/assets/fonts/Hoss_Round_Heavy.otf"),
 		"HossRound-Black": require("@/assets/fonts/Hoss_Round_Black.otf"),

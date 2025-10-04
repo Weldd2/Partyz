@@ -3,6 +3,7 @@ import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
@@ -17,7 +18,6 @@ import {
 	View,
 } from "react-native";
 
-// Images de fixtures pour la démo
 const fixtureImages = [
 	require("@/assets/images/fixtures/a2.jpg"),
 	require("@/assets/images/fixtures/bubu.jpeg"),
@@ -306,6 +306,9 @@ export default function Gallery() {
 
 	const handleLongPress = (imageId: string) => {
 		const newSelection = new Set(selectedImages);
+		if (!isSelectionMode) {
+			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+		}
 		if (newSelection.has(imageId)) {
 			newSelection.delete(imageId);
 		} else {
