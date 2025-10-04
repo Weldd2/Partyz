@@ -1,4 +1,5 @@
 import { ApiInterface } from "./ApiInterface";
+import { ShoppingListInterface } from "./ShoppingListItem";
 import { UserInterface } from "./UserInterface";
 
 export interface PartyInterface extends ApiInterface {
@@ -9,15 +10,6 @@ export interface PartyInterface extends ApiInterface {
 	address: string;
 	date: string;
 	members: Array<UserInterface>;
-	shoppingList: Array<
-		{
-			"@id": string;
-			"@type": string;
-			id: number;
-			name: string;
-			quantity: number;
-			broughtQuantity: number;
-		}
-	>;
+	shoppingList: Array<ShoppingListInterface>;
 	owner: UserInterface;
 }

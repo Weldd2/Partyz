@@ -20,6 +20,11 @@ const getVariantStyle = (colors: typeof Colors.light) => ({
 		color: colors.white,
 		fontSize: 20,
 	},
+	disabled: {
+		fontFamily: "HossRound-Regular",
+		color: colors.paragraphDisabled,
+		fontSize: 14,
+	},
 });
 
 type Props = React.ComponentProps<typeof Text> & {

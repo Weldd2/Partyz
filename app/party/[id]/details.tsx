@@ -1,12 +1,15 @@
 import Calendar from "@/components/Calendar";
 import Map from "@/components/Map";
 import PartyCard from "@/components/PartyCard";
+import ShoppingListSummary from "@/components/ShoppingListSummary";
 import SliderButton from "@/components/Theme/SliderButton";
 import SliderButtons from "@/components/Theme/SliderButtons";
+import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import UserSlider from "@/components/UserSlider";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -65,7 +68,7 @@ export default function Detail() {
 					</SliderButtons>
 					{activeView === "carte" ? <Map /> : <Calendar />}
 				</View>
-				<View>
+				<View style={{ gap: 30 }}>
 					<ThemedText
 						variant="h2"
 						style={{
@@ -77,6 +80,46 @@ export default function Detail() {
 						Participants
 					</ThemedText>
 					<UserSlider users={party.members} />
+				</View>
+				<View style={{ gap: 30 }}>
+					<ThemedText
+						variant="h2"
+						style={{
+							textTransform: "uppercase",
+							paddingTop: 40,
+							textAlign: "center",
+						}}
+					>
+						Liste de courses
+					</ThemedText>
+					<ShoppingListSummary data={party.shoppingList} />
+
+					{party.shoppingList.length > 4 ? (
+						<View
+							style={{
+								alignSelf: "center",
+							}}
+						>
+							<ThemedButton
+								style={{
+									flexDirection: "row",
+									gap: 10,
+								}}
+							>
+								<ThemedText
+									color="white"
+									style={{ fontSize: 16 }}
+								>
+									Voir la liste de courses
+								</ThemedText>
+								<FontAwesome
+									size={20}
+									name="plus-circle"
+									color={colors.white}
+								/>
+							</ThemedButton>
+						</View>
+					) : null}
 				</View>
 			</View>
 		</ScrollView>

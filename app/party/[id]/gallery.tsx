@@ -1,3 +1,4 @@
+import ImageModal from "@/components/ImageModal";
 import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
@@ -12,7 +13,6 @@ import {
 	Alert,
 	Dimensions,
 	FlatList,
-	Modal,
 	Pressable,
 	StyleSheet,
 	View,
@@ -136,47 +136,6 @@ const getStyles = (colors: typeof Colors.light, columns: number) => {
 		emptyIcon: {
 			marginBottom: 20,
 		},
-		modalOverlay: {
-			flex: 1,
-			backgroundColor: "rgba(0, 0, 0, 0.95)",
-		},
-		modalImage: {
-			width: "100%",
-			height: "100%",
-		},
-		modalHeader: {
-			position: "absolute",
-			top: 0,
-			left: 0,
-			right: 0,
-			paddingTop: 50,
-			paddingHorizontal: 20,
-			paddingBottom: 15,
-		},
-		modalCloseButton: {
-			alignSelf: "flex-end",
-			backgroundColor: "rgba(255, 255, 255, 0.2)",
-			width: 40,
-			height: 40,
-			borderRadius: 20,
-			justifyContent: "center",
-			alignItems: "center",
-		},
-		modalFooter: {
-			position: "absolute",
-			bottom: 0,
-			left: 0,
-			right: 0,
-			paddingHorizontal: 20,
-			paddingBottom: 40,
-		},
-		modalInfo: {
-			backgroundColor: "rgba(0, 0, 0, 0.6)",
-			padding: 15,
-			borderRadius: 12,
-			borderWidth: 1,
-			borderColor: "rgba(255, 255, 255, 0.1)",
-		},
 		selectionBar: {
 			position: "absolute",
 			bottom: 0,
@@ -281,9 +240,8 @@ export default function Gallery() {
 	const [selectedImages, setSelectedImages] = useState<Set<string>>(
 		new Set(),
 	);
-	const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(
-		null,
-	);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [modalInitialIndex, setModalInitialIndex] = useState(0);
 
 	const isSelectionMode = selectedImages.size > 0;
 
@@ -317,11 +275,12 @@ export default function Gallery() {
 		setSelectedImages(newSelection);
 	};
 
-	const handlePress = (image: GalleryImage) => {
+	const handlePress = (image: GalleryImage, index: number) => {
 		if (isSelectionMode) {
 			handleLongPress(image.id);
 		} else {
-			setSelectedImage(image);
+			setModalInitialIndex(index);
+			setModalVisible(true);
 		}
 	};
 
@@ -352,30 +311,19 @@ export default function Gallery() {
 		setSelectedImages(new Set());
 	};
 
-	const formatDate = (date: Date) => {
-		const now = new Date();
-		const diffMs = now.getTime() - date.getTime();
-		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-		const diffDays = Math.floor(diffHours / 24);
-
-		if (diffHours < 1) return "À l'instant";
-		if (diffHours < 24) return `Il y a ${diffHours}h`;
-		if (diffDays === 1) return "Hier";
-		if (diffDays < 7) return `Il y a ${diffDays}j`;
-
-		return date.toLocaleDateString("fr-FR", {
-			day: "numeric",
-			month: "short",
-		});
-	};
-
-	const renderImage = ({ item }: { item: GalleryImage }) => {
+	const renderImage = ({
+		item,
+		index,
+	}: {
+		item: GalleryImage;
+		index: number;
+	}) => {
 		const isSelected = selectedImages.has(item.id);
 
 		return (
 			<View style={styles.imageContainer}>
 				<Pressable
-					onPress={() => handlePress(item)}
+					onPress={() => handlePress(item, index)}
 					onLongPress={() => handleLongPress(item.id)}
 					delayLongPress={300}
 					style={styles.imageWrapper}
@@ -557,67 +505,13 @@ export default function Gallery() {
 				</View>
 			)}
 
-			{/* Modal pour afficher l'image en plein écran */}
-			<Modal
-				visible={selectedImage !== null}
-				transparent
-				animationType="fade"
-				onRequestClose={() => setSelectedImage(null)}
-			>
-				<View style={styles.modalOverlay}>
-					<LinearGradient
-						colors={["rgba(0, 0, 0, 0.8)", "transparent"]}
-						style={styles.modalHeader}
-					>
-						<Pressable
-							style={styles.modalCloseButton}
-							onPress={() => setSelectedImage(null)}
-						>
-							<FontAwesome
-								name="times"
-								size={20}
-								color={colors.white}
-							/>
-						</Pressable>
-					</LinearGradient>
-
-					{selectedImage && (
-						<>
-							<Image
-								source={selectedImage.uri}
-								style={styles.modalImage}
-								contentFit="contain"
-							/>
-							<LinearGradient
-								colors={["transparent", "rgba(0, 0, 0, 0.8)"]}
-								style={styles.modalFooter}
-							>
-								<View style={styles.modalInfo}>
-									<ThemedText
-										style={{
-											fontSize: 16,
-											color: colors.white,
-											marginBottom: 5,
-											fontFamily: "HossRound-Bold",
-										}}
-									>
-										Ajoutée par {selectedImage.addedBy}
-									</ThemedText>
-									<ThemedText
-										style={{
-											fontSize: 14,
-											color: colors.white,
-											opacity: 0.8,
-										}}
-									>
-										{formatDate(selectedImage.addedAt)}
-									</ThemedText>
-								</View>
-							</LinearGradient>
-						</>
-					)}
-				</View>
-			</Modal>
+			{/* Modal pour afficher l'image en plein écran avec navigation */}
+			<ImageModal
+				visible={modalVisible}
+				images={images}
+				initialIndex={modalInitialIndex}
+				onClose={() => setModalVisible(false)}
+			/>
 		</View>
 	);
 }
