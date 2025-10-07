@@ -105,6 +105,9 @@ export default function Detail() {
 									flexDirection: "row",
 									gap: 10,
 								}}
+								onPress={() => {
+									// TODO: Naviguer vers la page complète de la liste de courses
+								}}
 							>
 								<ThemedText
 									color="white"

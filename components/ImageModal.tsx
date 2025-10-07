@@ -4,22 +4,20 @@ import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import {
-	Dimensions,
 	FlatList,
 	Modal,
 	Pressable,
 	StyleSheet,
+	useWindowDimensions,
 	View,
 	ViewToken,
 } from "react-native";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-
 type GalleryImage = {
 	id: string;
-	uri: any;
+	uri: string;
 	addedBy: string;
 	addedAt: Date;
 };
@@ -31,20 +29,20 @@ type Props = {
 	onClose: () => void;
 };
 
-const getStyles = (colors: typeof Colors.light) =>
+const getStyles = (colors: typeof Colors.light, screenWidth: number) =>
 	StyleSheet.create({
 		modalOverlay: {
 			flex: 1,
 			backgroundColor: "rgba(0, 0, 0, 0.95)",
 		},
 		imageContainer: {
-			width: SCREEN_WIDTH,
+			width: screenWidth,
 			height: "100%",
 			justifyContent: "center",
 			alignItems: "center",
 		},
 		modalImage: {
-			width: SCREEN_WIDTH,
+			width: screenWidth,
 			height: "100%",
 		},
 		modalHeader: {
@@ -93,18 +91,19 @@ const getStyles = (colors: typeof Colors.light) =>
 		},
 	});
 
-export default function ImageModal({
+const ImageModal = memo(({
 	visible,
 	images,
 	initialIndex,
 	onClose,
-}: Props) {
+}: Props) => {
 	const colors = useThemeColors();
-	const styles = getStyles(colors);
+	const { width: screenWidth } = useWindowDimensions();
+	const styles = getStyles(colors, screenWidth);
 	const flatListRef = useRef<FlatList>(null);
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-	const formatDate = (date: Date) => {
+	const formatDate = useCallback((date: Date) => {
 		const now = new Date();
 		const diffMs = now.getTime() - date.getTime();
 		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -119,7 +118,7 @@ export default function ImageModal({
 			day: "numeric",
 			month: "short",
 		});
-	};
+	}, []);
 
 	const onViewableItemsChanged = useRef(
 		({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -135,13 +134,13 @@ export default function ImageModal({
 
 	const currentImage = images[currentIndex];
 
-	const handleClose = () => {
+	const handleClose = useCallback(() => {
 		// Reset à l'index initial pour la prochaine ouverture
 		setCurrentIndex(initialIndex);
 		onClose();
-	};
+	}, [initialIndex, onClose]);
 
-	const renderImage = ({ item }: { item: GalleryImage }) => (
+	const renderImage = useCallback(({ item }: { item: GalleryImage }) => (
 		<View style={styles.imageContainer}>
 			<Image
 				source={item.uri}
@@ -149,7 +148,7 @@ export default function ImageModal({
 				contentFit="contain"
 			/>
 		</View>
-	);
+	), [styles.imageContainer, styles.modalImage]);
 
 	return (
 		<Modal
@@ -170,12 +169,15 @@ export default function ImageModal({
 					showsHorizontalScrollIndicator={false}
 					initialScrollIndex={initialIndex}
 					getItemLayout={(_, index) => ({
-						length: SCREEN_WIDTH,
-						offset: SCREEN_WIDTH * index,
+						length: screenWidth,
+						offset: screenWidth * index,
 						index,
 					})}
 					onViewableItemsChanged={onViewableItemsChanged}
 					viewabilityConfig={viewabilityConfig}
+					removeClippedSubviews={true}
+					maxToRenderPerBatch={3}
+					windowSize={5}
 				/>
 
 				<LinearGradient
@@ -239,4 +241,8 @@ export default function ImageModal({
 			</View>
 		</Modal>
 	);
-}
+});
+
+ImageModal.displayName = 'ImageModal';
+
+export default ImageModal;

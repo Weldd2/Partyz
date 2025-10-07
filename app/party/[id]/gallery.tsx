@@ -8,27 +8,27 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
 	Alert,
-	Dimensions,
 	FlatList,
 	Pressable,
 	StyleSheet,
+	useWindowDimensions,
 	View,
 } from "react-native";
 
 const fixtureImages = [
-	require("@/assets/images/fixtures/a2.jpg"),
-	require("@/assets/images/fixtures/bubu.jpeg"),
-	require("@/assets/images/fixtures/mlo.jpeg"),
-	require("@/assets/images/fixtures/mlou.jpg"),
-	require("@/assets/images/fixtures/sim.jpeg"),
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
 ];
 
 type GalleryImage = {
 	id: string;
-	uri: any;
+	uri: string;
 	addedBy: string;
 	addedAt: Date;
 };
@@ -36,11 +36,11 @@ type GalleryImage = {
 const blurhash =
 	"|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+const GRID_SPACING = 4;
+const LONG_PRESS_DELAY = 300;
 
-const getStyles = (colors: typeof Colors.light, columns: number) => {
-	const spacing = 4;
-	const itemWidth = (SCREEN_WIDTH - spacing * (columns + 1)) / columns;
+const getStyles = (colors: typeof Colors.light, columns: number, screenWidth: number) => {
+	const itemWidth = (screenWidth - GRID_SPACING * (columns + 1)) / columns;
 
 	return StyleSheet.create({
 		container: {
@@ -80,12 +80,12 @@ const getStyles = (colors: typeof Colors.light, columns: number) => {
 			backgroundColor: colors.primary,
 		},
 		imageGrid: {
-			padding: spacing,
+			padding: GRID_SPACING,
 		},
 		imageContainer: {
 			width: itemWidth,
 			height: itemWidth,
-			padding: spacing / 2,
+			padding: GRID_SPACING / 2,
 		},
 		imageWrapper: {
 			width: "100%",
@@ -182,9 +182,10 @@ const getStyles = (colors: typeof Colors.light, columns: number) => {
 export default function Gallery() {
 	const colors = useThemeColors();
 	const { id } = useLocalSearchParams();
+	const { width: screenWidth } = useWindowDimensions();
 
 	const [columns, setColumns] = useState(3);
-	const styles = getStyles(colors, columns);
+	const styles = useMemo(() => getStyles(colors, columns, screenWidth), [colors, columns, screenWidth]);
 
 	const [images, setImages] = useState<GalleryImage[]>([
 		{
@@ -245,7 +246,7 @@ export default function Gallery() {
 
 	const isSelectionMode = selectedImages.size > 0;
 
-	const handleAddPhotos = () => {
+	const handleAddPhotos = useCallback(() => {
 		const newImage: GalleryImage = {
 			id: Date.now().toString(),
 			uri: fixtureImages[
@@ -260,31 +261,36 @@ export default function Gallery() {
 			"Photo ajoutée !",
 			"Votre photo a été ajoutée à la galerie",
 		);
-	};
+	}, []);
 
-	const handleLongPress = (imageId: string) => {
-		const newSelection = new Set(selectedImages);
-		if (!isSelectionMode) {
-			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-		}
-		if (newSelection.has(imageId)) {
-			newSelection.delete(imageId);
-		} else {
-			newSelection.add(imageId);
-		}
-		setSelectedImages(newSelection);
-	};
+	const handleLongPress = useCallback((imageId: string) => {
+		setSelectedImages((prevSelection) => {
+			const newSelection = new Set(prevSelection);
+			const wasEmpty = prevSelection.size === 0;
 
-	const handlePress = (image: GalleryImage, index: number) => {
-		if (isSelectionMode) {
+			if (wasEmpty) {
+				Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+			}
+
+			if (newSelection.has(imageId)) {
+				newSelection.delete(imageId);
+			} else {
+				newSelection.add(imageId);
+			}
+			return newSelection;
+		});
+	}, []);
+
+	const handlePress = useCallback((image: GalleryImage, index: number) => {
+		if (selectedImages.size > 0) {
 			handleLongPress(image.id);
 		} else {
 			setModalInitialIndex(index);
 			setModalVisible(true);
 		}
-	};
+	}, [selectedImages.size, handleLongPress]);
 
-	const handleDeleteSelected = () => {
+	const handleDeleteSelected = useCallback(() => {
 		Alert.alert(
 			"Supprimer les photos",
 			`Êtes-vous sûr de vouloir supprimer ${selectedImages.size} photo${selectedImages.size > 1 ? "s" : ""} ?`,
@@ -305,13 +311,13 @@ export default function Gallery() {
 				},
 			],
 		);
-	};
+	}, [selectedImages]);
 
-	const handleCancelSelection = () => {
+	const handleCancelSelection = useCallback(() => {
 		setSelectedImages(new Set());
-	};
+	}, []);
 
-	const renderImage = ({
+	const renderImage = useCallback(({
 		item,
 		index,
 	}: {
@@ -325,7 +331,7 @@ export default function Gallery() {
 				<Pressable
 					onPress={() => handlePress(item, index)}
 					onLongPress={() => handleLongPress(item.id)}
-					delayLongPress={300}
+					delayLongPress={LONG_PRESS_DELAY}
 					style={styles.imageWrapper}
 				>
 					<Image
@@ -367,7 +373,7 @@ export default function Gallery() {
 				</Pressable>
 			</View>
 		);
-	};
+	}, [selectedImages, isSelectionMode, styles, colors, handlePress, handleLongPress]);
 
 	return (
 		<View style={styles.container}>
@@ -448,9 +454,14 @@ export default function Gallery() {
 					renderItem={renderImage}
 					keyExtractor={(item) => item.id}
 					numColumns={columns}
-					key={columns}
+					key={`grid-${columns}`}
 					contentContainerStyle={styles.imageGrid}
 					showsVerticalScrollIndicator={false}
+					removeClippedSubviews={true}
+					maxToRenderPerBatch={10}
+					updateCellsBatchingPeriod={50}
+					windowSize={7}
+					initialNumToRender={20}
 				/>
 			)}
 

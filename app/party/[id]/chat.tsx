@@ -4,8 +4,9 @@ import { Colors } from "@/constants/colors";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
+	Alert,
 	FlatList,
 	KeyboardAvoidingView,
 	Platform,
@@ -80,7 +81,7 @@ const getStyles = (colors: typeof Colors.light) =>
 
 export default function Chat() {
 	const colors = useThemeColors();
-	const styles = getStyles(colors);
+	const styles = useMemo(() => getStyles(colors), [colors]);
 	const { id } = useLocalSearchParams();
 	const [messages, setMessages] = useState<Message[]>([
 		{
@@ -109,7 +110,7 @@ export default function Chat() {
 		},
 	]);
 
-	const handleSendMessage = (text: string) => {
+	const handleSendMessage = useCallback((text: string) => {
 		const newMessage: Message = {
 			id: Date.now().toString(),
 			text,
@@ -119,14 +120,17 @@ export default function Chat() {
 			isOwn: true,
 		};
 		setMessages((prev) => [...prev, newMessage]);
-	};
+	}, []);
 
-	const handleAttach = () => {
-		console.log("Attach pressed");
-		// Implémenter la sélection de fichiers/photos
-	};
+	const handleAttach = useCallback(() => {
+		// TODO: Implémenter la sélection de fichiers/photos
+		Alert.alert(
+			"Ajouter une pièce jointe",
+			"Fonctionnalité à venir : sélection de photos et fichiers",
+		);
+	}, []);
 
-	const renderMessage = ({ item }: { item: Message }) => {
+	const renderMessage = useCallback(({ item }: { item: Message }) => {
 		const formattedTime = item.timestamp.toLocaleTimeString("fr-FR", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -175,7 +179,7 @@ export default function Chat() {
 				</View>
 			</View>
 		);
-	};
+	}, [styles, colors]);
 
 	return (
 		<KeyboardAvoidingView
@@ -203,6 +207,9 @@ export default function Chat() {
 					keyExtractor={(item) => item.id}
 					contentContainerStyle={{ paddingVertical: 10 }}
 					inverted={false}
+					removeClippedSubviews={true}
+					maxToRenderPerBatch={15}
+					windowSize={10}
 				/>
 			)}
 

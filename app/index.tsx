@@ -34,6 +34,9 @@ export default function Parties() {
 					return <View style={{ height: 40 }}></View>;
 				}}
 				keyExtractor={(item) => item.id}
+				removeClippedSubviews={true}
+				maxToRenderPerBatch={10}
+				windowSize={10}
 			/>
 		</>
 	);

@@ -12,7 +12,7 @@ export default function PartyLayout() {
 
 	return (
 		<SafeAreaView
-			style={{ flex: 1, backgroundColor: colors.white }}
+			style={{ flex: 1, backgroundColor: colors.background }}
 			edges={["bottom"]}
 		>
 			<MaterialTopTabs
@@ -24,7 +24,7 @@ export default function PartyLayout() {
 						backgroundColor: colors.primary,
 					},
 					tabBarStyle: {
-						backgroundColor: colors.white,
+						backgroundColor: "transparent",
 					},
 					tabBarLabelStyle: {
 						fontSize: 14,

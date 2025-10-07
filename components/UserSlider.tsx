@@ -3,7 +3,7 @@ import useThemeColors from "@/hooks/useThemeColors";
 import { UserInterface } from "@/types/UserInterface";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import ThemedCarousel from "./Theme/ThemedCarousel";
 import ThemedText from "./Theme/ThemedText";
@@ -13,62 +13,53 @@ type Props = {
 };
 
 const fixturesPictures = [
-	require("@/assets/images/fixtures/a2.jpg"),
-	require("@/assets/images/fixtures/bubu.jpeg"),
-	require("@/assets/images/fixtures/mlo.jpeg"),
-	require("@/assets/images/fixtures/mlou.jpg"),
-	require("@/assets/images/fixtures/sim.jpeg"),
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
+	"https://placehold.co/600x400",
 ];
 
 const blurhash =
 	"|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 const SLIDE_WIDTH = 162;
+const SLIDE_HEIGHT = SLIDE_WIDTH * (16 / 9);
 
-const UserSlider = ({ users }: Props) => {
+const UserSlider = memo(({ users }: Props) => {
 	const colors = useThemeColors();
-	const styles = getStyles(colors);
-	const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+	const styles = useMemo(() => getStyles(colors), [colors]);
 
-	const renderUser = (
-		item: UserInterface,
-		_index: number,
-		isSelected: boolean,
-	) => {
-		const imageIndex = _index % fixturesPictures.length;
-		const shouldLoad = loadedImages.has(_index);
+	const renderUser = useCallback(
+		(item: UserInterface, _index: number, isSelected: boolean) => {
+			const imageIndex = _index % fixturesPictures.length;
 
-		return (
-			<View style={styles.slide}>
-				<Image
-					source={shouldLoad ? fixturesPictures[imageIndex] : null}
-					placeholder={{ blurhash }}
-					style={{
-						width: SLIDE_WIDTH,
-						height: SLIDE_WIDTH * (16 / 9),
-					}}
-					transition={300}
-					onLayout={() => {
-						// Charger l'image quand elle devient visible
-						if (!loadedImages.has(_index)) {
-							setLoadedImages((prev) =>
-								new Set(prev).add(_index),
-							);
-						}
-					}}
-					contentFit="cover"
-				/>
-				<LinearGradient
-					colors={["transparent", "#000000CC"]}
-					locations={[0.8, 1]}
-					style={styles.shadowLayer}
-				/>
-				<ThemedText color="white" style={styles.textLayer}>
-					{item.firstname}
-				</ThemedText>
-			</View>
-		);
-	};
+			return (
+				<View style={styles.slide}>
+					<Image
+						source={fixturesPictures[imageIndex]}
+						placeholder={{ blurhash }}
+						style={{
+							width: SLIDE_WIDTH,
+							height: SLIDE_HEIGHT,
+						}}
+						transition={300}
+						contentFit="cover"
+						cachePolicy="memory-disk"
+					/>
+					<LinearGradient
+						colors={["transparent", "#000000CC"]}
+						locations={[0.8, 1]}
+						style={styles.shadowLayer}
+					/>
+					<ThemedText color="white" style={styles.textLayer}>
+						{item.firstname}
+					</ThemedText>
+				</View>
+			);
+		},
+		[styles]
+	);
 
 	return (
 		<ThemedCarousel
@@ -80,7 +71,9 @@ const UserSlider = ({ users }: Props) => {
 			enableInfiniteScroll={false}
 		/>
 	);
-};
+});
+
+UserSlider.displayName = 'UserSlider';
 
 const getStyles = (colors: typeof Colors.light) =>
 	StyleSheet.create({

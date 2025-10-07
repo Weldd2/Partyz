@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import { PartyInterface } from "@/types/PartyInterface";
+import { memo, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import ThemedButton from "./Theme/ThemedButton";
 import ThemedText from "./Theme/ThemedText";
@@ -47,9 +48,29 @@ const getStyles = (colors: typeof Colors.light) =>
 		},
 	});
 
-export default function PartyCard({ party }: Props) {
+const PartyCard = memo(({ party }: Props) => {
 	const colors = useThemeColors();
-	const styles = getStyles(colors);
+	const styles = useMemo(() => getStyles(colors), [colors]);
+
+	const formattedDate = useMemo(
+		() => new Date(party.date).toLocaleDateString("fr-FR", {
+			weekday: "short",
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		}),
+		[party.date]
+	);
+
+	const formattedTime = useMemo(
+		() => new Date(party.date).toLocaleTimeString("fr-FR", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		}),
+		[party.date]
+	);
+
 	return (
 		<View style={styles.card}>
 			<ThemedText style={styles.tag}>Les Caennais</ThemedText>
@@ -64,18 +85,7 @@ export default function PartyCard({ party }: Props) {
 						{party.title}
 					</ThemedText>
 					<ThemedText style={{ color: colors.paragraphDisabled }}>
-						{new Date(party.date).toLocaleDateString("fr-FR", {
-							weekday: "short",
-							year: "numeric",
-							month: "long",
-							day: "numeric",
-						})}{" "}
-						|{" "}
-						{new Date(party.date).toLocaleTimeString("fr-FR", {
-							hour: "2-digit",
-							minute: "2-digit",
-							hour12: false,
-						})}
+						{formattedDate} | {formattedTime}
 					</ThemedText>
 				</View>
 			</View>
@@ -108,4 +118,8 @@ export default function PartyCard({ party }: Props) {
 			</View>
 		</View>
 	);
-}
+});
+
+PartyCard.displayName = 'PartyCard';
+
+export default PartyCard;

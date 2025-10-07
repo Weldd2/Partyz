@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	FlatList,
 	NativeScrollEvent,
@@ -32,97 +32,87 @@ function ThemedCarousel<T>({
 	enableInfiniteScroll = true,
 	ItemSeparatorComponent,
 }: CarouselProps<T>) {
-	const baseData = useMemo(() => data, [data]);
-	const loopedData = useMemo(
-		() =>
-			enableInfiniteScroll
-				? [...baseData, ...baseData, ...baseData]
-				: baseData,
-		[baseData, enableInfiniteScroll],
-	);
-
 	const listRef = useRef<FlatList>(null);
-	const [selectedIndex, setSelectedIndex] = useState(
-		enableInfiniteScroll ? baseData.length + initialIndex : initialIndex,
-	);
+	const [selectedIndex, setSelectedIndex] = useState(initialIndex);
 
 	const itemSize = itemWidth + itemSpacing;
+	const dataLength = data.length;
 
 	// Notifier le changement d'item sélectionné
 	useEffect(() => {
-		const actualIndex = enableInfiniteScroll
-			? selectedIndex % baseData.length
-			: selectedIndex;
-		const selectedItem = baseData[actualIndex];
+		const selectedItem = data[selectedIndex];
 		if (onItemChange && selectedItem !== undefined) {
-			onItemChange(selectedItem, actualIndex);
+			onItemChange(selectedItem, selectedIndex);
 		}
-	}, [selectedIndex, baseData, onItemChange, enableInfiniteScroll]);
+	}, [selectedIndex, data, onItemChange]);
 
-	// Scroll initial au centre pour le mode infini
+	// Scroll initial
 	useEffect(() => {
-		if (listRef.current && enableInfiniteScroll) {
+		if (listRef.current && initialIndex > 0) {
 			setTimeout(() => {
 				listRef.current?.scrollToIndex({
-					index: baseData.length + initialIndex,
+					index: initialIndex,
 					animated: false,
 				});
-			}, 10);
+			}, 100);
 		}
-	}, [baseData.length, initialIndex, enableInfiniteScroll]);
-
-	// Mettre à jour l'élément sélectionné basé sur le scroll
-	const updateSelectedFromScroll = (offsetX: number) => {
-		const currentIndex = Math.round(offsetX / itemSize);
-		setSelectedIndex(currentIndex);
-	};
-
-	// Recentrer si trop proche du début ou de la fin (mode infini)
-	const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-		const offsetX = e.nativeEvent.contentOffset.x;
-		const currentIndex = Math.round(offsetX / itemSize);
-
-		updateSelectedFromScroll(offsetX);
-
-		if (enableInfiniteScroll) {
-			if (currentIndex < baseData.length / 2) {
-				const newIndex = currentIndex + baseData.length;
-				listRef.current?.scrollToIndex({
-					index: newIndex,
-					animated: false,
-				});
-				setSelectedIndex(newIndex);
-			} else if (currentIndex > baseData.length * 2.5) {
-				const newIndex = currentIndex - baseData.length;
-				listRef.current?.scrollToIndex({
-					index: newIndex,
-					animated: false,
-				});
-				setSelectedIndex(newIndex);
-			}
-		}
-	};
+	}, [initialIndex]);
 
 	// Gérer le scroll pendant le défilement
-	const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-		const offsetX = e.nativeEvent.contentOffset.x;
-		updateSelectedFromScroll(offsetX);
-	};
+	const handleScroll = useCallback(
+		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+			const offsetX = e.nativeEvent.contentOffset.x;
+			const currentIndex = Math.round(offsetX / itemSize);
+			const normalizedIndex = ((currentIndex % dataLength) + dataLength) % dataLength;
+			setSelectedIndex(normalizedIndex);
+		},
+		[itemSize, dataLength]
+	);
+
+	// Gérer la fin du scroll
+	const handleScrollEnd = useCallback(
+		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+			const offsetX = e.nativeEvent.contentOffset.x;
+			const currentIndex = Math.round(offsetX / itemSize);
+			const normalizedIndex = ((currentIndex % dataLength) + dataLength) % dataLength;
+			setSelectedIndex(normalizedIndex);
+		},
+		[itemSize, dataLength]
+	);
 
 	// Gérer le press sur un item
-	const handleItemPress = (index: number) => {
+	const handleItemPress = useCallback((index: number) => {
 		listRef.current?.scrollToIndex({
 			index: index,
 			animated: true,
 		});
-	};
+		setSelectedIndex(index);
+	}, []);
 
-	const DefaultSeparator = () => <View style={{ width: itemSpacing }} />;
+	const DefaultSeparator = useCallback(() => <View style={{ width: itemSpacing }} />, [itemSpacing]);
+
+	const renderCarouselItem = useCallback(({ item, index }: { item: T; index: number }) => {
+		const isSelected = index === selectedIndex;
+		return (
+			<TouchableOpacity
+				activeOpacity={0.8}
+				onPress={() => handleItemPress(index)}
+			>
+				{renderItem(item, index, isSelected)}
+			</TouchableOpacity>
+		);
+	}, [selectedIndex, handleItemPress, renderItem]);
+
+	const getItemLayout = useCallback((_, index) => ({
+		length: itemSize,
+		offset: itemSize * index,
+		index,
+	}), [itemSize]);
 
 	return (
 		<FlatList
 			ref={listRef}
-			data={loopedData}
+			data={data}
 			horizontal
 			showsHorizontalScrollIndicator={false}
 			snapToInterval={itemSize}
@@ -136,23 +126,12 @@ function ThemedCarousel<T>({
 			onScroll={handleScroll}
 			onMomentumScrollEnd={handleScrollEnd}
 			scrollEventThrottle={16}
-			getItemLayout={(_, index) => ({
-				length: itemSize,
-				offset: itemSize * index,
-				index,
-			})}
+			getItemLayout={getItemLayout}
 			ItemSeparatorComponent={ItemSeparatorComponent || DefaultSeparator}
-			renderItem={({ item, index }) => {
-				const isSelected = index === selectedIndex;
-				return (
-					<TouchableOpacity
-						activeOpacity={0.8}
-						onPress={() => handleItemPress(index)}
-					>
-						{renderItem(item, index, isSelected)}
-					</TouchableOpacity>
-				);
-			}}
+			renderItem={renderCarouselItem}
+			removeClippedSubviews={true}
+			maxToRenderPerBatch={5}
+			windowSize={7}
 		/>
 	);
 }
