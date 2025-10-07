@@ -20,6 +20,7 @@ but some other screens are planned :
 - party preview BEFORE joining it (just the detail screen)
 - login
 - signin
+- contacts of user
 - forms (crud party, shopping list item)
 
 ## Tech Stack
