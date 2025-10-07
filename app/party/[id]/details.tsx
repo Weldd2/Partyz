@@ -10,7 +10,7 @@ import UserSlider from "@/components/UserSlider";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
 
@@ -18,6 +18,7 @@ const party = partiesFixture.member[0];
 
 export default function Detail() {
 	const colors = useThemeColors();
+	const router = useRouter();
 	const { id } = useLocalSearchParams();
 	const [activeView, setActiveView] = useState("carte");
 
@@ -106,7 +107,7 @@ export default function Detail() {
 									gap: 10,
 								}}
 								onPress={() => {
-									// TODO: Naviguer vers la page complète de la liste de courses
+									router.push(`/party/shopping-list/${id}`);
 								}}
 							>
 								<ThemedText
@@ -117,7 +118,7 @@ export default function Detail() {
 								</ThemedText>
 								<FontAwesome
 									size={20}
-									name="plus-circle"
+									name="arrow-right"
 									color={colors.white}
 								/>
 							</ThemedButton>

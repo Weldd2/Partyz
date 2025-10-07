@@ -1,10 +1,12 @@
 import DateSlider from "@/components/DateSlider";
 import { useState } from "react";
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
 import PartyCard from "@/components/PartyCard";
 import partiesFixture from "@/fixtures/parties";
 import { useRouter } from "expo-router";
+import useThemeColors from "@/hooks/useThemeColors";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Parties() {
 	const [selectedDate, setSelectedDate] = useState<{
@@ -12,6 +14,29 @@ export default function Parties() {
 		year: string;
 	} | null>(null);
 	const router = useRouter();
+	const colors = useThemeColors();
+
+	const styles = StyleSheet.create({
+		fabContainer: {
+			position: "absolute",
+			bottom: 20,
+			right: 20,
+			zIndex: 1000,
+		},
+		fab: {
+			width: 60,
+			height: 60,
+			borderRadius: 30,
+			backgroundColor: colors.primary,
+			justifyContent: "center",
+			alignItems: "center",
+			shadowColor: colors.primary,
+			shadowOffset: { width: 0, height: 4 },
+			shadowOpacity: 0.3,
+			shadowRadius: 8,
+			elevation: 8,
+		},
+	});
 
 	return (
 		<>
@@ -38,6 +63,18 @@ export default function Parties() {
 				maxToRenderPerBatch={10}
 				windowSize={10}
 			/>
+			{/* Floating Action Button */}
+			<View style={styles.fabContainer}>
+				<Pressable
+					style={({ pressed }) => [
+						styles.fab,
+						{ opacity: pressed ? 0.8 : 1 },
+					]}
+					onPress={() => router.push("/party/create")}
+				>
+					<FontAwesome name="plus" size={24} color={colors.white} />
+				</Pressable>
+			</View>
 		</>
 	);
 }
