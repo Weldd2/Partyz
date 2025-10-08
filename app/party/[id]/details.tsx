@@ -23,7 +23,7 @@ export default function Detail() {
 	const [activeView, setActiveView] = useState("carte");
 
 	return (
-		<ScrollView>
+		<ScrollView style={{ backgroundColor: colors.background }}>
 			<View style={{ position: "relative" }}>
 				<View
 					style={{

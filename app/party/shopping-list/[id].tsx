@@ -358,7 +358,7 @@ export default function ShoppingList() {
 							bottom: "50%",
 						}}
 					/>
-					<View style={{ padding: 10 }}>
+					<View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
 						<ThemedTextInput
 							placeholder="Rechercher un article..."
 							value={searchQuery}

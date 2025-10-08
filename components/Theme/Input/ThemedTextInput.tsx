@@ -73,6 +73,7 @@ export default function ThemedTextInput({
 					style={[styles.input, rest.style]}
 					placeholderTextColor={colors.paragraphDisabled}
 					editable={!disabled}
+					autoFocus={false}
 				/>
 			</View>
 			{error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
