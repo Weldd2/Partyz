@@ -1,9 +1,12 @@
-import ThemedHeader from "@/components/Theme/ThemedHeader";
+import { Colors } from "@/constants/colors";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
+import { Pressable } from "react-native";
 
 export default function RootLayout() {
 	const router = useRouter();
+	const colors = Colors.light;
 	const [fontsLoaded] = useFonts({
 		HossRound: require("@/assets/fonts/Hoss_Round_Medium.otf"),
 		"HossRound-Light": require("@/assets/fonts/Hoss_Round_Light.otf"),
@@ -16,54 +19,41 @@ export default function RootLayout() {
 	if (!fontsLoaded) return null;
 
 	return (
-		<Stack>
+		<Stack
+			screenOptions={{
+				headerStyle: {
+					backgroundColor: colors.primary,
+				},
+				headerTintColor: colors.white,
+				headerTitleStyle: {
+					fontFamily: "HossRound",
+					fontSize: 18,
+				},
+			}}
+		>
 			<Stack.Screen
 				name="index"
 				options={{
-					header: () => (
-						<ThemedHeader
-							title="Mes parties"
-							menuItems={[
-								{
-									label: "Se déconnecter",
-									icon: "sign-out",
-									onPress: () => router.push("/login"),
-								},
-							]}
-						/>
+					title: "Mes parties",
+					headerRight: () => (
+						<Pressable
+							onPress={() => router.push("/login")}
+							style={{ paddingHorizontal: 16 }}
+						>
+							<FontAwesome
+								name="sign-out"
+								size={20}
+								color={colors.white}
+							/>
+						</Pressable>
 					),
 				}}
 			/>
-			<Stack.Screen
-				name="party/[id]"
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name="login"
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name="party/create"
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name="party/edit/[id]"
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name="party/shopping-list/[id]"
-				options={{
-					headerShown: false,
-				}}
-			/>
+			<Stack.Screen name="party/[id]" />
+			<Stack.Screen name="login" />
+			<Stack.Screen name="party/create" />
+			<Stack.Screen name="party/edit/[id]" />
+			<Stack.Screen name="party/shopping-list/[id]" />
 		</Stack>
 	);
 }

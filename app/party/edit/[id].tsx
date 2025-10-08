@@ -1,7 +1,6 @@
 import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedDatePicker from "@/components/Theme/Input/ThemedDatePicker";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
-import ThemedHeader from "@/components/Theme/ThemedHeader";
 import ThemedText from "@/components/Theme/ThemedText";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
@@ -174,7 +173,16 @@ export default function EditParty() {
 			<>
 				<Stack.Screen
 					options={{
-						header: () => <ThemedHeader title="Modifier la party" />,
+						title: "Modifier la party",
+						headerStyle: {
+							backgroundColor: colors.primary,
+						},
+						headerTintColor: colors.white,
+						headerTitleStyle: {
+							fontFamily: "HossRound",
+							fontSize: 18,
+							textTransform: "uppercase",
+						},
 					}}
 				/>
 				<View style={[styles.container, styles.loadingContainer]}>
@@ -188,7 +196,16 @@ export default function EditParty() {
 		<>
 			<Stack.Screen
 				options={{
-					header: () => <ThemedHeader title="Modifier la party" />,
+					title: "Modifier la party",
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+					headerTitleStyle: {
+						fontFamily: "HossRound",
+						fontSize: 18,
+						textTransform: "uppercase",
+					},
 				}}
 			/>
 			<KeyboardAvoidingView

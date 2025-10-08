@@ -1,10 +1,15 @@
-import ThemedHeader from "@/components/Theme/ThemedHeader";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useLocalSearchParams, useRouter, withLayoutContext } from "expo-router";
-import { Alert, View } from "react-native";
+import {
+	Stack,
+	useLocalSearchParams,
+	useRouter,
+	withLayoutContext,
+} from "expo-router";
+import { useState } from "react";
+import { Alert, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { Navigator } = createMaterialTopTabNavigator();
@@ -14,6 +19,7 @@ export default function PartyLayout() {
 	const colors = useThemeColors();
 	const router = useRouter();
 	const { id } = useLocalSearchParams<{ id: string }>();
+	const [menuVisible, setMenuVisible] = useState(false);
 
 	// Get party data to display title
 	const party = partiesFixture.member.find((p) => p.id === id);
@@ -52,21 +58,30 @@ export default function PartyLayout() {
 
 	return (
 		<View style={{ flex: 1, backgroundColor: colors.background }}>
-			<ThemedHeader
-				title={partyTitle}
-				menuItems={[
-					{
-						label: "Modifier",
-						icon: "edit",
-						onPress: handleEdit,
+			<Stack.Screen
+				options={{
+					title: partyTitle,
+					headerStyle: {
+						backgroundColor: colors.primary,
 					},
-					{
-						label: "Supprimer",
-						icon: "trash",
-						onPress: handleDelete,
-						danger: true,
+					headerTintColor: colors.white,
+					headerTitleStyle: {
+						fontFamily: "HossRound",
+						fontSize: 18,
 					},
-				]}
+					headerRight: () => (
+						<Pressable
+							onPress={handleEdit}
+							style={{ paddingHorizontal: 8 }}
+						>
+							<FontAwesome
+								name="edit"
+								size={20}
+								color={colors.white}
+							/>
+						</Pressable>
+					),
+				}}
 			/>
 			<SafeAreaView
 				style={{ flex: 1, backgroundColor: colors.background }}

@@ -1,5 +1,4 @@
 import ShoppingListItemBottomSheet from "@/components/ShoppingListItemBottomSheet";
-import ThemedHeader from "@/components/Theme/ThemedHeader";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
 import ThemedText from "@/components/Theme/ThemedText";
 import partiesFixture from "@/fixtures/parties";
@@ -10,12 +9,12 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
+	Alert,
 	FlatList,
+	Keyboard,
 	Pressable,
 	StyleSheet,
 	View,
-	Alert,
-	Keyboard,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -32,9 +31,8 @@ export default function ShoppingList() {
 		party?.shoppingList || [],
 	);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedItem, setSelectedItem] = useState<ShoppingListInterface | null>(
-		null,
-	);
+	const [selectedItem, setSelectedItem] =
+		useState<ShoppingListInterface | null>(null);
 
 	// Filter items based on search
 	const filteredItems = useMemo(() => {
@@ -113,30 +111,27 @@ export default function ShoppingList() {
 		);
 	}, []);
 
-	const handleDeleteItem = useCallback(
-		(item: ShoppingListInterface) => {
-			Alert.alert(
-				"Supprimer l'article",
-				`Êtes-vous sûr de vouloir supprimer "${item.name}" ?`,
-				[
-					{
-						text: "Annuler",
-						style: "cancel",
+	const handleDeleteItem = useCallback((item: ShoppingListInterface) => {
+		Alert.alert(
+			"Supprimer l'article",
+			`Êtes-vous sûr de vouloir supprimer "${item.name}" ?`,
+			[
+				{
+					text: "Annuler",
+					style: "cancel",
+				},
+				{
+					text: "Supprimer",
+					style: "destructive",
+					onPress: () => {
+						setShoppingList((prev) =>
+							prev.filter((i) => i.id !== item.id),
+						);
 					},
-					{
-						text: "Supprimer",
-						style: "destructive",
-						onPress: () => {
-							setShoppingList((prev) =>
-								prev.filter((i) => i.id !== item.id),
-							);
-						},
-					},
-				],
-			);
-		},
-		[],
-	);
+				},
+			],
+		);
+	}, []);
 
 	const styles = StyleSheet.create({
 		container: {
@@ -252,7 +247,8 @@ export default function ShoppingList() {
 	});
 
 	const renderItem = ({ item }: { item: ShoppingListInterface }) => {
-		const progress = item.quantity > 0 ? item.broughtQuantity / item.quantity : 0;
+		const progress =
+			item.quantity > 0 ? item.broughtQuantity / item.quantity : 0;
 		const isComplete = item.broughtQuantity >= item.quantity;
 
 		return (
@@ -339,85 +335,83 @@ export default function ShoppingList() {
 	};
 
 	return (
-		<>
+		<View style={{ flex: 1, backgroundColor: colors.background }}>
 			<Stack.Screen
 				options={{
-					header: () => (
-						<ThemedHeader
-							title={`${partyTitle} - Liste`}
-							menuItems={[
-								{
-									label: "Retour",
-									icon: "arrow-left",
-									onPress: () => router.back(),
-								},
-							]}
-						/>
-					),
+					title: `${partyTitle} - Liste`,
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+					headerTitleStyle: {
+						fontFamily: "HossRound",
+						fontSize: 18,
+						textTransform: "uppercase",
+					},
 				}}
 			/>
 			<GestureHandlerRootView style={styles.container}>
-				<View style={styles.container}>
+				<View>
 					<View style={styles.searchContainer}>
-					<ThemedTextInput
-						placeholder="Rechercher un article..."
-						value={searchQuery}
-						onChangeText={setSearchQuery}
-						containerStyle={{ marginBottom: 0 }}
+						<ThemedTextInput
+							placeholder="Rechercher un article..."
+							value={searchQuery}
+							onChangeText={setSearchQuery}
+							containerStyle={{ marginBottom: 0 }}
+						/>
+					</View>
+
+					<FlatList
+						data={filteredItems}
+						renderItem={renderItem}
+						keyExtractor={(item) => item.id.toString()}
+						contentContainerStyle={[
+							styles.listContainer,
+							filteredItems.length === 0 && { flex: 1 },
+						]}
+						ListEmptyComponent={
+							<View style={styles.emptyContainer}>
+								<FontAwesome
+									name="shopping-basket"
+									size={60}
+									color={colors.paragraphDisabled}
+									style={{ marginBottom: 16 }}
+								/>
+								<ThemedText style={styles.emptyText}>
+									{searchQuery
+										? "Aucun article trouvé"
+										: "Aucun article dans la liste\nAppuyez sur + pour en ajouter"}
+								</ThemedText>
+							</View>
+						}
+					/>
+
+					{/* FAB */}
+					<View style={styles.fabContainer}>
+						<Pressable
+							style={({ pressed }) => [
+								styles.fab,
+								{ opacity: pressed ? 0.8 : 1 },
+							]}
+							onPress={() => handleOpenBottomSheet(null)}
+						>
+							<FontAwesome
+								name="plus"
+								size={24}
+								color={colors.white}
+							/>
+						</Pressable>
+					</View>
+
+					{/* Bottom Sheet */}
+					<ShoppingListItemBottomSheet
+						ref={bottomSheetRef}
+						item={selectedItem}
+						onSave={handleSaveItem}
+						onCancel={handleCloseBottomSheet}
 					/>
 				</View>
-
-				<FlatList
-					data={filteredItems}
-					renderItem={renderItem}
-					keyExtractor={(item) => item.id.toString()}
-					contentContainerStyle={[
-						styles.listContainer,
-						filteredItems.length === 0 && { flex: 1 },
-					]}
-					ListEmptyComponent={
-						<View style={styles.emptyContainer}>
-							<FontAwesome
-								name="shopping-basket"
-								size={60}
-								color={colors.paragraphDisabled}
-								style={{ marginBottom: 16 }}
-							/>
-							<ThemedText style={styles.emptyText}>
-								{searchQuery
-									? "Aucun article trouvé"
-									: "Aucun article dans la liste\nAppuyez sur + pour en ajouter"}
-							</ThemedText>
-						</View>
-					}
-				/>
-
-				{/* FAB */}
-				<View style={styles.fabContainer}>
-					<Pressable
-						style={({ pressed }) => [
-							styles.fab,
-							{ opacity: pressed ? 0.8 : 1 },
-						]}
-						onPress={() => handleOpenBottomSheet(null)}
-					>
-						<FontAwesome
-							name="plus"
-							size={24}
-							color={colors.white}
-						/>
-					</Pressable>
-				</View>
-
-				{/* Bottom Sheet */}
-				<ShoppingListItemBottomSheet
-					ref={bottomSheetRef}
-					item={selectedItem}
-					onSave={handleSaveItem}
-					onCancel={handleCloseBottomSheet}
-				/>
-			</View>
-		</GestureHandlerRootView>
-		</>
+			</GestureHandlerRootView>
+		</View>
 	);
 }

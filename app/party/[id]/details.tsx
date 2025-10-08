@@ -29,7 +29,7 @@ export default function Detail() {
 					style={{
 						position: "absolute",
 						backgroundColor: colors.primary,
-						height: "500%",
+						height: "400%",
 						width: "100%",
 						right: 0,
 						bottom: "50%",

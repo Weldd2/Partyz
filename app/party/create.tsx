@@ -1,7 +1,6 @@
 import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedDatePicker from "@/components/Theme/Input/ThemedDatePicker";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
-import ThemedHeader from "@/components/Theme/ThemedHeader";
 import ThemedText from "@/components/Theme/ThemedText";
 import useThemeColors from "@/hooks/useThemeColors";
 import { UserInterface } from "@/types/UserInterface";
@@ -152,7 +151,16 @@ export default function CreateParty() {
 		<>
 			<Stack.Screen
 				options={{
-					header: () => <ThemedHeader title="Créer une party" />,
+					title: "Créer une party",
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+					headerTitleStyle: {
+						fontFamily: "HossRound",
+						fontSize: 18,
+						textTransform: "uppercase",
+					},
 				}}
 			/>
 			<KeyboardAvoidingView
