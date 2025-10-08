@@ -69,6 +69,7 @@ export default function PartyLayout() {
 						fontFamily: "HossRound",
 						fontSize: 18,
 					},
+					headerShadowVisible: false,
 					headerRight: () => (
 						<Pressable
 							onPress={handleEdit}

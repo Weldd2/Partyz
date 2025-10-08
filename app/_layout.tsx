@@ -29,6 +29,7 @@ export default function RootLayout() {
 					fontFamily: "HossRound",
 					fontSize: 18,
 				},
+				headerShadowVisible: false,
 			}}
 		>
 			<Stack.Screen

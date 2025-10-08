@@ -161,6 +161,7 @@ export default function CreateParty() {
 						fontSize: 18,
 						textTransform: "uppercase",
 					},
+					headerShadowVisible: false,
 				}}
 			/>
 			<KeyboardAvoidingView

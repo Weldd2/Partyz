@@ -183,6 +183,7 @@ export default function EditParty() {
 							fontSize: 18,
 							textTransform: "uppercase",
 						},
+						headerShadowVisible: false,
 					}}
 				/>
 				<View style={[styles.container, styles.loadingContainer]}>
@@ -206,6 +207,7 @@ export default function EditParty() {
 						fontSize: 18,
 						textTransform: "uppercase",
 					},
+					headerShadowVisible: false,
 				}}
 			/>
 			<KeyboardAvoidingView

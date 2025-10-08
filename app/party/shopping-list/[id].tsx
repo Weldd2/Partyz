@@ -137,12 +137,7 @@ export default function ShoppingList() {
 		container: {
 			flex: 1,
 			backgroundColor: colors.background,
-		},
-		searchContainer: {
-			padding: 16,
-			backgroundColor: colors.white,
-			borderBottomWidth: 1,
-			borderBottomColor: colors.primary,
+			position: "relative",
 		},
 		listContainer: {
 			padding: 16,
@@ -348,11 +343,22 @@ export default function ShoppingList() {
 						fontSize: 18,
 						textTransform: "uppercase",
 					},
+					headerShadowVisible: false,
 				}}
 			/>
 			<GestureHandlerRootView style={styles.container}>
-				<View>
-					<View style={styles.searchContainer}>
+				<View style={{ position: "relative" }}>
+					<View
+						style={{
+							position: "absolute",
+							backgroundColor: colors.primary,
+							height: "400%",
+							width: "100%",
+							right: 0,
+							bottom: "50%",
+						}}
+					/>
+					<View style={{ padding: 10 }}>
 						<ThemedTextInput
 							placeholder="Rechercher un article..."
 							value={searchQuery}
@@ -360,57 +366,57 @@ export default function ShoppingList() {
 							containerStyle={{ marginBottom: 0 }}
 						/>
 					</View>
-
-					<FlatList
-						data={filteredItems}
-						renderItem={renderItem}
-						keyExtractor={(item) => item.id.toString()}
-						contentContainerStyle={[
-							styles.listContainer,
-							filteredItems.length === 0 && { flex: 1 },
-						]}
-						ListEmptyComponent={
-							<View style={styles.emptyContainer}>
-								<FontAwesome
-									name="shopping-basket"
-									size={60}
-									color={colors.paragraphDisabled}
-									style={{ marginBottom: 16 }}
-								/>
-								<ThemedText style={styles.emptyText}>
-									{searchQuery
-										? "Aucun article trouvé"
-										: "Aucun article dans la liste\nAppuyez sur + pour en ajouter"}
-								</ThemedText>
-							</View>
-						}
-					/>
-
-					{/* FAB */}
-					<View style={styles.fabContainer}>
-						<Pressable
-							style={({ pressed }) => [
-								styles.fab,
-								{ opacity: pressed ? 0.8 : 1 },
-							]}
-							onPress={() => handleOpenBottomSheet(null)}
-						>
-							<FontAwesome
-								name="plus"
-								size={24}
-								color={colors.white}
-							/>
-						</Pressable>
-					</View>
-
-					{/* Bottom Sheet */}
-					<ShoppingListItemBottomSheet
-						ref={bottomSheetRef}
-						item={selectedItem}
-						onSave={handleSaveItem}
-						onCancel={handleCloseBottomSheet}
-					/>
 				</View>
+
+				<FlatList
+					data={filteredItems}
+					renderItem={renderItem}
+					keyExtractor={(item) => item.id.toString()}
+					contentContainerStyle={[
+						styles.listContainer,
+						filteredItems.length === 0 && { flex: 1 },
+					]}
+					ListEmptyComponent={
+						<View style={styles.emptyContainer}>
+							<FontAwesome
+								name="shopping-basket"
+								size={60}
+								color={colors.paragraphDisabled}
+								style={{ marginBottom: 16 }}
+							/>
+							<ThemedText style={styles.emptyText}>
+								{searchQuery
+									? "Aucun article trouvé"
+									: "Aucun article dans la liste\nAppuyez sur + pour en ajouter"}
+							</ThemedText>
+						</View>
+					}
+				/>
+
+				{/* FAB */}
+				<View style={styles.fabContainer}>
+					<Pressable
+						style={({ pressed }) => [
+							styles.fab,
+							{ opacity: pressed ? 0.8 : 1 },
+						]}
+						onPress={() => handleOpenBottomSheet(null)}
+					>
+						<FontAwesome
+							name="plus"
+							size={24}
+							color={colors.white}
+						/>
+					</Pressable>
+				</View>
+
+				{/* Bottom Sheet */}
+				<ShoppingListItemBottomSheet
+					ref={bottomSheetRef}
+					item={selectedItem}
+					onSave={handleSaveItem}
+					onCancel={handleCloseBottomSheet}
+				/>
 			</GestureHandlerRootView>
 		</View>
 	);
