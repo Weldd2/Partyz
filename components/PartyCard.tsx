@@ -37,7 +37,6 @@ const getStyles = (colors: typeof Colors.light) =>
 			position: "absolute",
 			top: 0,
 			right: 0,
-			fontSize: 16,
 			padding: 5,
 			backgroundColor: colors.third,
 			zIndex: 1,
@@ -53,27 +52,31 @@ const PartyCard = memo(({ party }: Props) => {
 	const styles = useMemo(() => getStyles(colors), [colors]);
 
 	const formattedDate = useMemo(
-		() => new Date(party.date).toLocaleDateString("fr-FR", {
-			weekday: "short",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		}),
-		[party.date]
+		() =>
+			new Date(party.date).toLocaleDateString("fr-FR", {
+				weekday: "short",
+				year: "numeric",
+				month: "long",
+				day: "numeric",
+			}),
+		[party.date],
 	);
 
 	const formattedTime = useMemo(
-		() => new Date(party.date).toLocaleTimeString("fr-FR", {
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: false,
-		}),
-		[party.date]
+		() =>
+			new Date(party.date).toLocaleTimeString("fr-FR", {
+				hour: "2-digit",
+				minute: "2-digit",
+				hour12: false,
+			}),
+		[party.date],
 	);
 
 	return (
 		<View style={styles.card}>
-			<ThemedText style={styles.tag}>Les Caennais</ThemedText>
+			<View style={styles.tag}>
+				<ThemedText style={{ fontSize: 16 }}>Les Caennais</ThemedText>
+			</View>
 			<View style={{ gap: 10 }}>
 				<View style={{ alignSelf: "flex-start" }}>
 					<ThemedText style={styles.address}>
@@ -120,6 +123,6 @@ const PartyCard = memo(({ party }: Props) => {
 	);
 });
 
-PartyCard.displayName = 'PartyCard';
+PartyCard.displayName = "PartyCard";
 
 export default PartyCard;

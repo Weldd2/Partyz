@@ -35,7 +35,7 @@ export default function Detail() {
 						bottom: "50%",
 					}}
 				/>
-				<View style={{ padding: 10 }}>
+				<View style={{ padding: 10, paddingTop: 15 }}>
 					<PartyCard party={party} />
 				</View>
 			</View>
