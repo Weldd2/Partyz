@@ -1,5 +1,5 @@
-import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
+import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
@@ -118,6 +118,8 @@ const ShoppingListItemBottomSheet = forwardRef<BottomSheet, Props>(
 				handleIndicatorStyle={{
 					backgroundColor: colors.paragraphDisabled,
 				}}
+				keyboardBehavior="extend"
+				keyboardBlurBehavior="restore"
 			>
 				<BottomSheetView style={styles.contentContainer}>
 					<View style={styles.header}>
@@ -136,6 +138,7 @@ const ShoppingListItemBottomSheet = forwardRef<BottomSheet, Props>(
 								setErrors({ ...errors, name: "" });
 							}}
 							error={errors.name}
+							useBottomSheetInput={true}
 							autoFocus
 						/>
 
@@ -148,6 +151,7 @@ const ShoppingListItemBottomSheet = forwardRef<BottomSheet, Props>(
 								setErrors({ ...errors, quantity: "" });
 							}}
 							error={errors.quantity}
+							useBottomSheetInput={true}
 							keyboardType="number-pad"
 						/>
 					</View>

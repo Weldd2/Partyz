@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
+import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { StyleSheet, TextInput, View } from "react-native";
 import ThemedText from "../ThemedText";
 
@@ -46,6 +47,7 @@ type Props = React.ComponentProps<typeof TextInput> & {
 	error?: string;
 	containerStyle?: any;
 	disabled?: boolean;
+	useBottomSheetInput?: boolean; // Nouvelle prop
 };
 
 export default function ThemedTextInput({
@@ -53,10 +55,16 @@ export default function ThemedTextInput({
 	error,
 	containerStyle,
 	disabled = false,
+	useBottomSheetInput = false,
 	...rest
 }: Props) {
 	const colors = useThemeColors();
 	const styles = getStyles(colors);
+
+	// Choisir le bon composant
+	const InputComponent = useBottomSheetInput
+		? BottomSheetTextInput
+		: TextInput;
 
 	return (
 		<View style={[styles.container, containerStyle]}>
@@ -68,7 +76,7 @@ export default function ThemedTextInput({
 					disabled ? styles.disabled : undefined,
 				]}
 			>
-				<TextInput
+				<InputComponent
 					{...rest}
 					style={[styles.input, rest.style]}
 					placeholderTextColor={colors.paragraphDisabled}
