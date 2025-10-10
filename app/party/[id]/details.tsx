@@ -67,7 +67,7 @@ export default function Detail() {
 							onPress={() => setActiveView("calendrier")}
 						/>
 					</SliderButtons>
-					{activeView === "carte" ? <Map /> : <Calendar />}
+					{activeView === "carte" ? <Map /> : <Calendar party={party} />}
 				</View>
 				<View style={{ gap: 30 }}>
 					<ThemedText
