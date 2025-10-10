@@ -192,14 +192,6 @@ export default function ShoppingList() {
 			alignItems: "center",
 			gap: 16,
 		},
-		controlButton: {
-			width: 36,
-			height: 36,
-			borderRadius: 18,
-			backgroundColor: colors.primary,
-			justifyContent: "center",
-			alignItems: "center",
-		},
 		controlButtonDisabled: {
 			opacity: 0.3,
 		},
@@ -227,9 +219,9 @@ export default function ShoppingList() {
 			right: 20,
 		},
 		fab: {
-			width: 60,
-			height: 60,
-			borderRadius: 30,
+			width: 40,
+			height: 40,
+			borderRadius: 8,
 			backgroundColor: colors.primary,
 			justifyContent: "center",
 			alignItems: "center",
@@ -256,21 +248,7 @@ export default function ShoppingList() {
 						<ThemedText style={styles.itemName}>
 							{item.name}
 						</ThemedText>
-						<ThemedText style={styles.itemQuantity}>
-							Objectif: {item.quantity}
-						</ThemedText>
 					</View>
-					<Pressable
-						style={styles.deleteButton}
-						onPress={() => handleDeleteItem(item)}
-						hitSlop={8}
-					>
-						<FontAwesome
-							name="trash"
-							size={18}
-							color={colors.red}
-						/>
-					</Pressable>
 				</View>
 
 				<View style={styles.itemControls}>
@@ -291,7 +269,6 @@ export default function ShoppingList() {
 					<View style={styles.controlButtons}>
 						<Pressable
 							style={[
-								styles.controlButton,
 								item.broughtQuantity === 0 &&
 									styles.controlButtonDisabled,
 							]}
@@ -300,27 +277,24 @@ export default function ShoppingList() {
 						>
 							<FontAwesome
 								name="minus"
-								size={16}
-								color={colors.white}
+								size={20}
+								color={colors.primary}
 							/>
 						</Pressable>
 
 						<ThemedText style={styles.contributionText}>
-							{item.broughtQuantity}
+							{item.broughtQuantity} / {item.quantity}
 						</ThemedText>
 
 						<Pressable
-							style={[
-								styles.controlButton,
-								isComplete && styles.controlButtonDisabled,
-							]}
+							style={[isComplete && styles.controlButtonDisabled]}
 							onPress={() => handleIncrement(item)}
 							disabled={isComplete}
 						>
 							<FontAwesome
 								name="plus"
-								size={16}
-								color={colors.white}
+								size={20}
+								color={colors.primary}
 							/>
 						</Pressable>
 					</View>
