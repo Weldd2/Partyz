@@ -4,8 +4,11 @@ import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import { ShoppingListInterface } from "@/types/ShoppingListItem";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { forwardRef, useEffect, useState } from "react";
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import { Keyboard, StyleSheet, View } from "react-native";
 
 const getStyles = (colors: typeof Colors.light) =>
@@ -105,6 +108,19 @@ const ShoppingListItemBottomSheet = forwardRef<BottomSheet, Props>(
 			onCancel();
 		};
 
+		const renderBackdrop = useCallback(
+			(props: any) => (
+				<BottomSheetBackdrop
+					{...props}
+					disappearsOnIndex={-1}
+					appearsOnIndex={0}
+					opacity={0.5}
+					pressBehavior="close"
+				/>
+			),
+			[],
+		);
+
 		return (
 			<BottomSheet
 				ref={ref}
@@ -112,6 +128,7 @@ const ShoppingListItemBottomSheet = forwardRef<BottomSheet, Props>(
 				snapPoints={["50%", "75%"]}
 				enablePanDownToClose
 				onClose={handleCancel}
+				backdropComponent={renderBackdrop}
 				backgroundStyle={{
 					backgroundColor: colors.white,
 				}}

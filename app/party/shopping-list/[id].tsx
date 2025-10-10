@@ -197,7 +197,7 @@ export default function ShoppingList() {
 		},
 		contributionText: {
 			fontSize: 20,
-			fontFamily: "HossRound-Bold",
+			fontFamily: "HossRound",
 			minWidth: 30,
 			textAlign: "center",
 		},
@@ -273,7 +273,6 @@ export default function ShoppingList() {
 									styles.controlButtonDisabled,
 							]}
 							onPress={() => handleDecrement(item)}
-							disabled={item.broughtQuantity === 0}
 						>
 							<FontAwesome
 								name="minus"
@@ -289,7 +288,6 @@ export default function ShoppingList() {
 						<Pressable
 							style={[isComplete && styles.controlButtonDisabled]}
 							onPress={() => handleIncrement(item)}
-							disabled={isComplete}
 						>
 							<FontAwesome
 								name="plus"
@@ -372,7 +370,11 @@ export default function ShoppingList() {
 					<Pressable
 						style={({ pressed }) => [
 							styles.fab,
-							{ opacity: pressed ? 0.8 : 1 },
+							{
+								transform: pressed
+									? [{ scale: 1.2 }]
+									: [{ scale: 1 }],
+							},
 						]}
 						onPress={() => handleOpenBottomSheet(null)}
 					>
