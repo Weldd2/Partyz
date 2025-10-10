@@ -1,8 +1,8 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import { PartyInterface } from "@/types/PartyInterface";
-import { memo, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { memo, useCallback, useMemo } from "react";
+import { Alert, Platform, Share, StyleSheet, View } from "react-native";
 import ThemedButton from "./Theme/ThemedButton";
 import ThemedText from "./Theme/ThemedText";
 
@@ -72,6 +72,43 @@ const PartyCard = memo(({ party }: Props) => {
 		[party.date],
 	);
 
+	const handleShare = useCallback(async () => {
+		try {
+			const shareMessage = `🎉 Invitation à ${party.title}\n\n📍 ${party.address}\n📅 ${formattedDate} à ${formattedTime}\n\nOrganisé par ${party.owner.firstname}\n\nRejoins-nous pour cette soirée !`;
+
+			const result = await Share.share(
+				{
+					message: shareMessage,
+					title: `Invitation - ${party.title}`,
+				},
+				{
+					// iOS only options
+					subject: `Invitation - ${party.title}`,
+					dialogTitle: "Partager l'invitation",
+				},
+			);
+
+			if (result.action === Share.sharedAction) {
+				if (result.activityType) {
+					// Shared with activity type of result.activityType
+					console.log("Shared via:", result.activityType);
+				} else {
+					// Shared
+					console.log("Shared successfully");
+				}
+			} else if (result.action === Share.dismissedAction) {
+				// Dismissed
+				console.log("Share dismissed");
+			}
+		} catch (error) {
+			Alert.alert(
+				"Erreur",
+				"Impossible de partager l'invitation pour le moment.",
+			);
+			console.error("Error sharing:", error);
+		}
+	}, [party, formattedDate, formattedTime]);
+
 	return (
 		<View style={styles.card}>
 			<View style={styles.tag}>
@@ -116,7 +153,11 @@ const PartyCard = memo(({ party }: Props) => {
 					<ThemedButton text="Ajouter au calendrier" />
 				</View>
 				<View style={{ alignSelf: "flex-start" }}>
-					<ThemedButton variant="primary2" text="Partager" />
+					<ThemedButton
+						variant="primary2"
+						text="Partager"
+						onPress={handleShare}
+					/>
 				</View>
 			</View>
 		</View>
