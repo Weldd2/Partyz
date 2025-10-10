@@ -1,10 +1,10 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useState } from "react";
-import { Modal, Pressable, StyleSheet, View, ScrollView } from "react-native";
-import ThemedText from "../ThemedText";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import ThemedButton from "../ThemedButton";
+import ThemedText from "../ThemedText";
 
 const getStyles = (colors: typeof Colors.light) =>
 	StyleSheet.create({
@@ -189,7 +189,7 @@ export default function ThemedDatePicker({
 				>
 					{value ? formatDate(value) : placeholder}
 				</ThemedText>
-				<FontAwesome name="calendar" size={20} color={colors.primary} />
+				<FontAwesome6 name="calendar" size={20} color={colors.primary} />
 			</Pressable>
 			{error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
 

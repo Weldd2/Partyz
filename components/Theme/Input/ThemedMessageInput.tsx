@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useState } from "react";
 import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 
@@ -99,7 +99,7 @@ export default function ThemedMessageInput({
 						{ opacity: pressed ? 0.8 : 1 },
 					]}
 				>
-					<FontAwesome name="send" size={18} color={colors.primary} />
+					<FontAwesome6 name="send" size={18} color={colors.primary} />
 				</Pressable>
 			</View>
 		</View>

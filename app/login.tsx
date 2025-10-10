@@ -1,12 +1,12 @@
 import OTPInput from "@/components/OTPInput";
 import StepIndicator from "@/components/StepIndicator";
-import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
+import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import * as ImagePicker from "expo-image-picker";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -298,7 +298,7 @@ export default function Login() {
 								]}
 							>
 								{cguAccepted && (
-									<FontAwesome
+									<FontAwesome6
 										name="check"
 										size={16}
 										color={colors.white}
@@ -354,7 +354,7 @@ export default function Login() {
 										}}
 									/>
 								) : (
-									<FontAwesome
+									<FontAwesome6
 										name="user"
 										size={60}
 										color={colors.paragraphDisabled}
@@ -374,7 +374,7 @@ export default function Login() {
 											gap: 10,
 										}}
 									>
-										<FontAwesome
+										<FontAwesome6
 											name="camera"
 											size={20}
 											color={colors.primary}
@@ -398,7 +398,7 @@ export default function Login() {
 											gap: 10,
 										}}
 									>
-										<FontAwesome
+										<FontAwesome6
 											name="image"
 											size={20}
 											color={colors.primary}

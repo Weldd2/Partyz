@@ -9,7 +9,7 @@ import ThemedText from "@/components/Theme/ThemedText";
 import UserSlider from "@/components/UserSlider";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -116,7 +116,7 @@ export default function Detail() {
 								>
 									Voir la liste de courses
 								</ThemedText>
-								<FontAwesome
+								<FontAwesome6
 									size={20}
 									name="arrow-right"
 									color={colors.white}

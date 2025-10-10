@@ -1,6 +1,6 @@
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import {
@@ -51,8 +51,8 @@ export default function PartyLayout() {
 										onPress={handleEdit}
 										style={{ paddingHorizontal: 8 }}
 									>
-										<FontAwesome
-											name="file-pen"
+										<FontAwesome6
+											name="code-pull-request"
 											size={20}
 											color={colors.white}
 										/>
@@ -101,7 +101,7 @@ export default function PartyLayout() {
 						options={{
 							title: "Détails",
 							tabBarIcon: ({ color }) => (
-								<FontAwesome
+								<FontAwesome6
 									size={20}
 									name="info"
 									color={color}
@@ -114,7 +114,7 @@ export default function PartyLayout() {
 						options={{
 							title: "Chat",
 							tabBarIcon: ({ color }) => (
-								<FontAwesome
+								<FontAwesome6
 									size={20}
 									name="comments"
 									color={color}
@@ -127,7 +127,7 @@ export default function PartyLayout() {
 						options={{
 							title: "Galerie",
 							tabBarIcon: ({ color }) => (
-								<FontAwesome
+								<FontAwesome6
 									size={20}
 									name="image"
 									color={color}

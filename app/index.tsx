@@ -1,12 +1,11 @@
 import DateSlider from "@/components/DateSlider";
-import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
-
 import PartyCard from "@/components/PartyCard";
 import partiesFixture from "@/fixtures/parties";
-import { useRouter } from "expo-router";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
 export default function Parties() {
 	const [selectedDate, setSelectedDate] = useState<{
@@ -72,7 +71,7 @@ export default function Parties() {
 					]}
 					onPress={() => router.push("/party/create")}
 				>
-					<FontAwesome name="plus" size={24} color={colors.white} />
+					<FontAwesome6 name="plus" size={24} color={colors.white} />
 				</Pressable>
 			</View>
 		</>

@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/colors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import { Pressable } from "react-native";
@@ -45,7 +45,7 @@ export default function RootLayout() {
 							onPress={() => router.push("/login")}
 							style={{ paddingHorizontal: 16 }}
 						>
-							<FontAwesome
+							<FontAwesome6
 								name="sign-out"
 								size={20}
 								color={colors.white}

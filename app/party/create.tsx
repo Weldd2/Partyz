@@ -1,10 +1,10 @@
-import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedDatePicker from "@/components/Theme/Input/ThemedDatePicker";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
+import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import useThemeColors from "@/hooks/useThemeColors";
 import { UserInterface } from "@/types/UserInterface";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -224,7 +224,7 @@ export default function CreateParty() {
 								Participants
 							</ThemedText>
 							<Pressable onPress={handleAddMembers}>
-								<FontAwesome
+								<FontAwesome6
 									name="plus-circle"
 									size={28}
 									color={colors.primary}
@@ -259,7 +259,7 @@ export default function CreateParty() {
 													);
 												}}
 											>
-												<FontAwesome
+												<FontAwesome6
 													name="times"
 													size={14}
 													color={colors.primary}

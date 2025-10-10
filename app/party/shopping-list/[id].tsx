@@ -4,7 +4,7 @@ import ThemedText from "@/components/Theme/ThemedText";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import { ShoppingListInterface } from "@/types/ShoppingListItem";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -274,7 +274,7 @@ export default function ShoppingList() {
 							]}
 							onPress={() => handleDecrement(item)}
 						>
-							<FontAwesome
+							<FontAwesome6
 								name="minus"
 								size={20}
 								color={colors.primary}
@@ -289,7 +289,7 @@ export default function ShoppingList() {
 							style={[isComplete && styles.controlButtonDisabled]}
 							onPress={() => handleIncrement(item)}
 						>
-							<FontAwesome
+							<FontAwesome6
 								name="plus"
 								size={20}
 								color={colors.primary}
@@ -350,7 +350,7 @@ export default function ShoppingList() {
 					]}
 					ListEmptyComponent={
 						<View style={styles.emptyContainer}>
-							<FontAwesome
+							<FontAwesome6
 								name="shopping-basket"
 								size={60}
 								color={colors.paragraphDisabled}
@@ -378,7 +378,7 @@ export default function ShoppingList() {
 						]}
 						onPress={() => handleOpenBottomSheet(null)}
 					>
-						<FontAwesome
+						<FontAwesome6
 							name="plus"
 							size={24}
 							color={colors.white}

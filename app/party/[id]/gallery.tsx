@@ -2,7 +2,7 @@ import ImageModal from "@/components/ImageModal";
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -396,7 +396,7 @@ export default function Gallery() {
 					{isSelected && (
 						<View style={styles.selectionOverlay}>
 							<View style={styles.selectionCheckmark}>
-								<FontAwesome
+								<FontAwesome6
 									name="check"
 									size={18}
 									color={colors.primary}
@@ -414,7 +414,7 @@ export default function Gallery() {
 
 			{images.length === 0 ? (
 				<View style={styles.emptyState}>
-					<FontAwesome
+					<FontAwesome6
 						name="camera"
 						size={64}
 						color={colors.paragraphDisabled}
@@ -480,7 +480,7 @@ export default function Gallery() {
 							style={[styles.actionButton, styles.deleteButton]}
 							onPress={handleDeleteSelected}
 						>
-							<FontAwesome
+							<FontAwesome6
 								name="trash"
 								size={16}
 								color={colors.white}
@@ -519,7 +519,7 @@ export default function Gallery() {
 						]}
 						onPress={() => setSettingsVisible(!settingsVisible)}
 					>
-						<FontAwesome name="cog" size={20} color={colors.primary} />
+						<FontAwesome6 name="cog" size={20} color={colors.primary} />
 					</Pressable>
 
 					{settingsVisible && (
@@ -561,7 +561,7 @@ export default function Gallery() {
 										{col} colonnes
 									</ThemedText>
 									{columns === col && (
-										<FontAwesome
+										<FontAwesome6
 											name="check"
 											size={16}
 											color={colors.primary}
@@ -585,7 +585,7 @@ export default function Gallery() {
 					]}
 					onPress={handleAddPhotos}
 				>
-					<FontAwesome name="plus" size={24} color={colors.white} />
+					<FontAwesome6 name="plus" size={24} color={colors.white} />
 				</Pressable>
 			)}
 		</View>

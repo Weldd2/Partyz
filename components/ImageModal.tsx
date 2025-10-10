@@ -1,7 +1,7 @@
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { memo, useCallback, useRef, useState } from "react";
@@ -189,7 +189,7 @@ const ImageModal = memo(({
 						style={styles.modalCloseButton}
 						onPress={handleClose}
 					>
-						<FontAwesome
+						<FontAwesome6
 							name="times"
 							size={20}
 							color={colors.white}
