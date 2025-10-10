@@ -4,7 +4,7 @@ import { Colors } from "@/constants/colors";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
 	Alert,
 	FlatList,
@@ -83,6 +83,7 @@ export default function Chat() {
 	const colors = useThemeColors();
 	const styles = useMemo(() => getStyles(colors), [colors]);
 	const { id } = useLocalSearchParams();
+	const flatListRef = useRef<FlatList<Message>>(null);
 	const [messages, setMessages] = useState<Message[]>([
 		{
 			id: "1",
@@ -120,66 +121,88 @@ export default function Chat() {
 			isOwn: true,
 		};
 		setMessages((prev) => [...prev, newMessage]);
+		// Scroll is now handled by onContentSizeChange
 	}, []);
 
 	const handleAttach = useCallback(() => {
-		// TODO: Implémenter la sélection de fichiers/photos
 		Alert.alert(
 			"Ajouter une pièce jointe",
 			"Fonctionnalité à venir : sélection de photos et fichiers",
 		);
 	}, []);
 
-	const renderMessage = useCallback(({ item }: { item: Message }) => {
-		const formattedTime = item.timestamp.toLocaleTimeString("fr-FR", {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
+	const handleInputFocus = useCallback(() => {
+		// Delay scroll to allow keyboard animation to start
+		setTimeout(() => {
+			flatListRef.current?.scrollToEnd({ animated: true });
+		}, 150);
+	}, []);
 
-		return (
-			<View style={styles.messageContainer}>
-				<View
-					style={[
-						styles.messageBubble,
-						item.isOwn ? styles.ownMessage : styles.otherMessage,
-					]}
-				>
-					{!item.isOwn && (
+	const handleContentSizeChange = useCallback(() => {
+		// Auto-scroll when content size changes (new messages)
+		flatListRef.current?.scrollToEnd({ animated: true });
+	}, []);
+
+	const handleLayout = useCallback(() => {
+		// Auto-scroll when layout changes (keyboard appears/disappears)
+		flatListRef.current?.scrollToEnd({ animated: false });
+	}, []);
+
+	const renderMessage = useCallback(
+		({ item }: { item: Message }) => {
+			const formattedTime = item.timestamp.toLocaleTimeString("fr-FR", {
+				hour: "2-digit",
+				minute: "2-digit",
+			});
+
+			return (
+				<View style={styles.messageContainer}>
+					<View
+						style={[
+							styles.messageBubble,
+							item.isOwn
+								? styles.ownMessage
+								: styles.otherMessage,
+						]}
+					>
+						{!item.isOwn && (
+							<ThemedText
+								style={[
+									styles.senderName,
+									{ color: colors.primary },
+								]}
+							>
+								{item.senderName}
+							</ThemedText>
+						)}
 						<ThemedText
 							style={[
-								styles.senderName,
-								{ color: colors.primary },
+								styles.messageText,
+								item.isOwn
+									? styles.ownMessageText
+									: styles.otherMessageText,
 							]}
 						>
-							{item.senderName}
+							{item.text}
 						</ThemedText>
-					)}
-					<ThemedText
-						style={[
-							styles.messageText,
-							item.isOwn
-								? styles.ownMessageText
-								: styles.otherMessageText,
-						]}
-					>
-						{item.text}
-					</ThemedText>
-					<ThemedText
-						style={[
-							styles.timestamp,
-							{
-								color: item.isOwn
-									? colors.white
-									: colors.paragraphDisabled,
-							},
-						]}
-					>
-						{formattedTime}
-					</ThemedText>
+						<ThemedText
+							style={[
+								styles.timestamp,
+								{
+									color: item.isOwn
+										? colors.white
+										: colors.paragraphDisabled,
+								},
+							]}
+						>
+							{formattedTime}
+						</ThemedText>
+					</View>
 				</View>
-			</View>
-		);
-	}, [styles, colors]);
+			);
+		},
+		[styles, colors],
+	);
 
 	return (
 		<KeyboardAvoidingView
@@ -202,6 +225,7 @@ export default function Chat() {
 				</View>
 			) : (
 				<FlatList
+					ref={flatListRef}
 					data={messages}
 					renderItem={renderMessage}
 					keyExtractor={(item) => item.id}
@@ -210,12 +234,15 @@ export default function Chat() {
 					removeClippedSubviews={true}
 					maxToRenderPerBatch={15}
 					windowSize={10}
+					onContentSizeChange={handleContentSizeChange}
+					onLayout={handleLayout}
 				/>
 			)}
 
 			<ThemedMessageInput
 				onSendMessage={handleSendMessage}
 				onAttachPress={handleAttach}
+				onFocus={handleInputFocus}
 				placeholder="Écrivez un message..."
 			/>
 		</KeyboardAvoidingView>

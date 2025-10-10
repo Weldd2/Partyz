@@ -41,6 +41,7 @@ const getStyles = (colors: typeof Colors.light) =>
 type Props = {
 	onSendMessage?: (message: string) => void;
 	onAttachPress?: () => void;
+	onFocus?: () => void;
 	placeholder?: string;
 	maxLength?: number;
 };
@@ -48,6 +49,7 @@ type Props = {
 export default function ThemedMessageInput({
 	onSendMessage,
 	onAttachPress,
+	onFocus,
 	placeholder = "Message...",
 	maxLength = 1000,
 }: Props) {
@@ -79,6 +81,7 @@ export default function ThemedMessageInput({
 					style={styles.input}
 					value={message}
 					onChangeText={setMessage}
+					onFocus={onFocus}
 					placeholder={placeholder}
 					placeholderTextColor={colors.paragraphDisabled}
 					multiline
