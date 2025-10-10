@@ -30,6 +30,10 @@ export default function RootLayout() {
 					fontSize: 18,
 				},
 				headerShadowVisible: false,
+				headerBackTitleStyle: {
+					fontFamily: "HossRound",
+				},
+				headerBackTitle: "Back",
 			}}
 		>
 			<Stack.Screen
