@@ -1,5 +1,4 @@
 import ImageModal from "@/components/ImageModal";
-import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
@@ -47,40 +46,9 @@ const getStyles = (colors: typeof Colors.light, columns: number, screenWidth: nu
 			flex: 1,
 			backgroundColor: colors.background,
 		},
-		headerContainer: {
-			paddingHorizontal: 15,
-			paddingTop: 15,
-			paddingBottom: 10,
-			backgroundColor: colors.white,
-			gap: 12,
-			borderBottomWidth: 1,
-			borderBottomColor: colors.primary,
-		},
-		headerTop: {
-			flexDirection: "row",
-			justifyContent: "space-between",
-			alignItems: "center",
-		},
-		gridSelector: {
-			flexDirection: "row",
-			gap: 8,
-			justifyContent: "center",
-		},
-		gridButton: {
-			width: 36,
-			height: 36,
-			borderRadius: 8,
-			borderWidth: 1,
-			borderColor: colors.primary,
-			backgroundColor: colors.white,
-			justifyContent: "center",
-			alignItems: "center",
-		},
-		gridButtonActive: {
-			backgroundColor: colors.primary,
-		},
 		imageGrid: {
 			padding: GRID_SPACING,
+			paddingBottom: 100, // Extra padding for floating button
 		},
 		imageContainer: {
 			width: itemWidth,
@@ -132,6 +100,7 @@ const getStyles = (colors: typeof Colors.light, columns: number, screenWidth: nu
 			alignItems: "center",
 			paddingHorizontal: 40,
 			paddingVertical: 60,
+			paddingBottom: 140, // Extra padding for floating button
 		},
 		emptyIcon: {
 			marginBottom: 20,
@@ -175,6 +144,70 @@ const getStyles = (colors: typeof Colors.light, columns: number, screenWidth: nu
 		cancelButton: {
 			backgroundColor: colors.white,
 			borderColor: colors.primary,
+		},
+		floatingButton: {
+			position: "absolute",
+			bottom: 20,
+			right: 20,
+			width: 40,
+			height: 40,
+			borderRadius: 8,
+			backgroundColor: colors.primary,
+			justifyContent: "center",
+			alignItems: "center",
+			shadowColor: colors.primary,
+			shadowOffset: { width: 0, height: 4 },
+			shadowOpacity: 0.3,
+			shadowRadius: 8,
+			elevation: 8,
+		},
+		settingsButton: {
+			position: "absolute",
+			top: 20,
+			right: 20,
+			width: 40,
+			height: 40,
+			borderRadius: 8,
+			backgroundColor: colors.white,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			justifyContent: "center",
+			alignItems: "center",
+			shadowColor: colors.primary,
+			shadowOffset: { width: 0, height: 2 },
+			shadowOpacity: 0.2,
+			shadowRadius: 4,
+			elevation: 4,
+		},
+		dropdownMenu: {
+			position: "absolute",
+			top: 68,
+			right: 20,
+			backgroundColor: colors.white,
+			borderRadius: 8,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			shadowColor: colors.primary,
+			shadowOffset: { width: 0, height: 2 },
+			shadowOpacity: 0.2,
+			shadowRadius: 4,
+			elevation: 4,
+			overflow: "hidden",
+		},
+		dropdownItem: {
+			paddingVertical: 12,
+			paddingHorizontal: 20,
+			flexDirection: "row",
+			alignItems: "center",
+			gap: 12,
+			borderBottomWidth: 1,
+			borderBottomColor: colors.background,
+		},
+		dropdownItemLast: {
+			borderBottomWidth: 0,
+		},
+		dropdownItemActive: {
+			backgroundColor: colors.background,
 		},
 	});
 };
@@ -243,6 +276,7 @@ export default function Gallery() {
 	);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [modalInitialIndex, setModalInitialIndex] = useState(0);
+	const [settingsVisible, setSettingsVisible] = useState(false);
 
 	const isSelectionMode = selectedImages.size > 0;
 
@@ -377,52 +411,6 @@ export default function Gallery() {
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.headerContainer}>
-				<View style={styles.headerTop}>
-					<ThemedText
-						style={{
-							fontSize: 16,
-							color: colors.paragraph,
-							fontFamily: "HossRound-Bold",
-						}}
-					>
-						{images.length} photo{images.length > 1 ? "s" : ""}
-					</ThemedText>
-					<Pressable onPress={handleAddPhotos}>
-						<FontAwesome
-							name="plus-circle"
-							size={28}
-							color={colors.primary}
-						/>
-					</Pressable>
-				</View>
-
-				<View style={styles.gridSelector}>
-					{[2, 3, 4, 5].map((col) => (
-						<Pressable
-							key={col}
-							style={[
-								styles.gridButton,
-								columns === col && styles.gridButtonActive,
-							]}
-							onPress={() => setColumns(col)}
-						>
-							<ThemedText
-								style={{
-									fontSize: 14,
-									fontFamily: "HossRound-Bold",
-									color:
-										columns === col
-											? colors.white
-											: colors.primary,
-								}}
-							>
-								{col}
-							</ThemedText>
-						</Pressable>
-					))}
-				</View>
-			</View>
 
 			{images.length === 0 ? (
 				<View style={styles.emptyState}>
@@ -437,16 +425,11 @@ export default function Gallery() {
 							textAlign: "center",
 							color: colors.paragraphDisabled,
 							fontSize: 16,
-							marginBottom: 20,
 						}}
 					>
 						Aucune photo pour le moment.{"\n"}
 						Soyez le premier à partager vos souvenirs !
 					</ThemedText>
-					<ThemedButton
-						text="Ajouter une photo"
-						onPress={handleAddPhotos}
-					/>
 				</View>
 			) : (
 				<FlatList
@@ -523,6 +506,88 @@ export default function Gallery() {
 				initialIndex={modalInitialIndex}
 				onClose={() => setModalVisible(false)}
 			/>
+
+			{/* Settings Button */}
+			{!isSelectionMode && (
+				<>
+					<Pressable
+						style={({ pressed }) => [
+							styles.settingsButton,
+							{
+								transform: pressed ? [{ scale: 1.2 }] : [{ scale: 1 }],
+							},
+						]}
+						onPress={() => setSettingsVisible(!settingsVisible)}
+					>
+						<FontAwesome name="cog" size={20} color={colors.primary} />
+					</Pressable>
+
+					{settingsVisible && (
+						<View style={styles.dropdownMenu}>
+							<ThemedText
+								style={{
+									paddingHorizontal: 20,
+									paddingVertical: 8,
+									fontSize: 12,
+									color: colors.paragraphDisabled,
+									fontFamily: "HossRound-Bold",
+								}}
+							>
+								TAILLE DE LA GRILLE
+							</ThemedText>
+							{[2, 3, 4, 5].map((col, index) => (
+								<Pressable
+									key={col}
+									style={[
+										styles.dropdownItem,
+										columns === col && styles.dropdownItemActive,
+										index === 3 && styles.dropdownItemLast,
+									]}
+									onPress={() => {
+										setColumns(col);
+										setSettingsVisible(false);
+									}}
+								>
+									<ThemedText
+										style={{
+											fontSize: 16,
+											fontFamily:
+												columns === col
+													? "HossRound-Bold"
+													: "HossRound",
+											color: colors.paragraph,
+										}}
+									>
+										{col} colonnes
+									</ThemedText>
+									{columns === col && (
+										<FontAwesome
+											name="check"
+											size={16}
+											color={colors.primary}
+										/>
+									)}
+								</Pressable>
+							))}
+						</View>
+					)}
+				</>
+			)}
+
+			{/* Floating Action Button */}
+			{!isSelectionMode && (
+				<Pressable
+					style={({ pressed }) => [
+						styles.floatingButton,
+						{
+							transform: pressed ? [{ scale: 1.2 }] : [{ scale: 1 }],
+						},
+					]}
+					onPress={handleAddPhotos}
+				>
+					<FontAwesome name="plus" size={24} color={colors.white} />
+				</Pressable>
+			)}
 		</View>
 	);
 }

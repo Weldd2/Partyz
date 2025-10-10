@@ -2,6 +2,7 @@ import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import {
 	Stack,
 	useLocalSearchParams,
@@ -9,7 +10,7 @@ import {
 	withLayoutContext,
 } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { Navigator } = createMaterialTopTabNavigator();
@@ -19,7 +20,7 @@ export default function PartyLayout() {
 	const colors = useThemeColors();
 	const router = useRouter();
 	const { id } = useLocalSearchParams<{ id: string }>();
-	const [menuVisible, setMenuVisible] = useState(false);
+	const [activeTab, setActiveTab] = useState<string>("details");
 
 	// Get party data to display title
 	const party = partiesFixture.member.find((p) => p.id === id);
@@ -27,33 +28,6 @@ export default function PartyLayout() {
 
 	const handleEdit = () => {
 		router.push(`/party/edit/${id}`);
-	};
-
-	const handleDelete = () => {
-		Alert.alert(
-			"Supprimer la party",
-			"Êtes-vous sûr de vouloir supprimer cette party ? Cette action est irréversible.",
-			[
-				{
-					text: "Annuler",
-					style: "cancel",
-				},
-				{
-					text: "Supprimer",
-					style: "destructive",
-					onPress: () => {
-						// TODO: Call API to delete when backend is ready
-						console.log("Delete party:", id);
-						Alert.alert("Succès", "La party a été supprimée", [
-							{
-								text: "OK",
-								onPress: () => router.replace("/"),
-							},
-						]);
-					},
-				},
-			],
-		);
 	};
 
 	return (
@@ -70,18 +44,21 @@ export default function PartyLayout() {
 						fontSize: 18,
 					},
 					headerShadowVisible: false,
-					headerRight: () => (
-						<Pressable
-							onPress={handleEdit}
-							style={{ paddingHorizontal: 8 }}
-						>
-							<FontAwesome
-								name="edit"
-								size={20}
-								color={colors.white}
-							/>
-						</Pressable>
-					),
+					headerRight:
+						activeTab === "details"
+							? () => (
+									<Pressable
+										onPress={handleEdit}
+										style={{ paddingHorizontal: 8 }}
+									>
+										<FontAwesome
+											name="file-pen"
+											size={20}
+											color={colors.white}
+										/>
+									</Pressable>
+								)
+							: undefined,
 				}}
 			/>
 			<SafeAreaView
@@ -110,6 +87,14 @@ export default function PartyLayout() {
 						},
 						swipeEnabled: true,
 					})}
+					screenListeners={{
+						state: (e) => {
+							const state = e.data
+								.state as TabNavigationState<ParamListBase>;
+							const routeName = state.routes[state.index].name;
+							setActiveTab(routeName);
+						},
+					}}
 				>
 					<MaterialTopTabs.Screen
 						name="details"
