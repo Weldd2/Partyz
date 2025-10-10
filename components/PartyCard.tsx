@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import { PartyInterface } from "@/types/PartyInterface";
+import * as Calendar from "expo-calendar";
 import { memo, useCallback, useMemo } from "react";
 import { Alert, Platform, Share, StyleSheet, View } from "react-native";
 import ThemedButton from "./Theme/ThemedButton";
@@ -109,6 +110,78 @@ const PartyCard = memo(({ party }: Props) => {
 		}
 	}, [party, formattedDate, formattedTime]);
 
+	const handleAddToCalendar = useCallback(async () => {
+		try {
+			// Request calendar permissions
+			const { status } = await Calendar.requestCalendarPermissionsAsync();
+
+			if (status !== "granted") {
+				Alert.alert(
+					"Permission refusée",
+					"L'accès au calendrier est nécessaire pour ajouter cet événement.",
+				);
+				return;
+			}
+
+			// Get default calendar
+			const calendars = await Calendar.getCalendarsAsync(
+				Calendar.EntityTypes.EVENT,
+			);
+
+			let defaultCalendar = calendars.find(
+				(cal) =>
+					cal.allowsModifications &&
+					(cal.isPrimary || cal.source.name === "iCloud"),
+			);
+
+			// If no primary calendar found, use the first modifiable one
+			if (!defaultCalendar) {
+				defaultCalendar = calendars.find((cal) => cal.allowsModifications);
+			}
+
+			if (!defaultCalendar) {
+				Alert.alert(
+					"Erreur",
+					"Aucun calendrier disponible pour ajouter l'événement.",
+				);
+				return;
+			}
+
+			// Parse the party date
+			const eventDate = new Date(party.date);
+			const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000); // Add 3 hours
+
+			// Create the calendar event
+			const eventId = await Calendar.createEventAsync(
+				defaultCalendar.id,
+				{
+					title: party.title,
+					startDate: eventDate,
+					endDate: endDate,
+					location: party.address,
+					notes: `Organisé par ${party.owner.firstname}\n\n${party.members.length} personnes participent`,
+					timeZone: "Europe/Paris",
+					alarms: [
+						{ relativeOffset: -60 }, // 1 hour before
+						{ relativeOffset: -24 * 60 }, // 1 day before
+					],
+				},
+			);
+
+			Alert.alert(
+				"Succès",
+				"L'événement a été ajouté à votre calendrier !",
+			);
+			console.log("Event created with ID:", eventId);
+		} catch (error) {
+			Alert.alert(
+				"Erreur",
+				"Impossible d'ajouter l'événement au calendrier.",
+			);
+			console.error("Error adding to calendar:", error);
+		}
+	}, [party, formattedDate, formattedTime]);
+
 	return (
 		<View style={styles.card}>
 			<View style={styles.tag}>
@@ -150,7 +223,10 @@ const PartyCard = memo(({ party }: Props) => {
 			</View>
 			<View style={{ flexDirection: "row", gap: 10 }}>
 				<View style={{ alignSelf: "flex-start" }}>
-					<ThemedButton text="Ajouter au calendrier" />
+					<ThemedButton
+						text="Ajouter au calendrier"
+						onPress={handleAddToCalendar}
+					/>
 				</View>
 				<View style={{ alignSelf: "flex-start" }}>
 					<ThemedButton
