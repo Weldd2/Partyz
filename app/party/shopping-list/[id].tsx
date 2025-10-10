@@ -7,7 +7,7 @@ import { ShoppingListInterface } from "@/types/ShoppingListItem";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	Alert,
 	FlatList,
@@ -17,6 +17,8 @@ import {
 	View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+type SortOption = "default" | "completed" | "name";
 
 export default function ShoppingList() {
 	const colors = useThemeColors();
@@ -33,14 +35,73 @@ export default function ShoppingList() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedItem, setSelectedItem] =
 		useState<ShoppingListInterface | null>(null);
+	const [sortBy, setSortBy] = useState<SortOption>("default");
+	const [showSortMenu, setShowSortMenu] = useState(false);
+	const [sortedList, setSortedList] = useState<ShoppingListInterface[]>([]);
 
-	// Filter items based on search
+	// Sort function
+	const sortItems = useCallback(
+		(items: ShoppingListInterface[]) => {
+			return [...items].sort((a, b) => {
+				// Priority 1: Items with broughtQuantity > 0 go first (user brought these)
+				const aHasBrought = a.broughtQuantity > 0;
+				const bHasBrought = b.broughtQuantity > 0;
+
+				if (aHasBrought && !bHasBrought) return -1;
+				if (!aHasBrought && bHasBrought) return 1;
+
+				// Priority 2: Apply selected sort option
+				if (sortBy === "default") {
+					// Default: uncompleted first
+					const aComplete = a.broughtQuantity >= a.quantity;
+					const bComplete = b.broughtQuantity >= b.quantity;
+					if (!aComplete && bComplete) return -1;
+					if (aComplete && !bComplete) return 1;
+					return 0;
+				} else if (sortBy === "completed") {
+					// Completed first
+					const aComplete = a.broughtQuantity >= a.quantity;
+					const bComplete = b.broughtQuantity >= b.quantity;
+					if (aComplete && !bComplete) return -1;
+					if (!aComplete && bComplete) return 1;
+					return 0;
+				} else if (sortBy === "name") {
+					// Alphabetical by name
+					return a.name.localeCompare(b.name);
+				}
+				return 0;
+			});
+		},
+		[sortBy],
+	);
+
+	// Apply sorting only when sortBy changes or on initial load
+	useEffect(() => {
+		setSortedList(sortItems(shoppingList));
+	}, [sortBy, sortItems, shoppingList.length]);
+
+	// Keep sortedList in sync with shoppingList changes (updates only, not re-sorting)
+	useEffect(() => {
+		setSortedList((prevSorted) => {
+			// Create a map of current shopping list items by id for quick lookup
+			const shoppingMap = new Map(
+				shoppingList.map((item) => [item.id, item]),
+			);
+
+			// Update existing items in sortedList with new data from shoppingList
+			return prevSorted
+				.map((sortedItem) => shoppingMap.get(sortedItem.id))
+				.filter((item): item is ShoppingListInterface => item !== undefined);
+		});
+	}, [shoppingList]);
+
+	// Filter items based on search (no sorting here)
 	const filteredItems = useMemo(() => {
-		if (!searchQuery.trim()) return shoppingList;
-		return shoppingList.filter((item) =>
+		if (!searchQuery.trim()) return sortedList;
+		return sortedList.filter((item) =>
 			item.name.toLowerCase().includes(searchQuery.toLowerCase()),
 		);
-	}, [shoppingList, searchQuery]);
+	}, [sortedList, searchQuery]);
 
 	const handleOpenBottomSheet = useCallback(
 		(item: ShoppingListInterface | null) => {
@@ -231,6 +292,49 @@ export default function ShoppingList() {
 			shadowRadius: 8,
 			elevation: 8,
 		},
+		sortButton: {
+			backgroundColor: colors.white,
+			borderRadius: 8,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			paddingVertical: 8,
+			paddingHorizontal: 12,
+			flexDirection: "row",
+			alignItems: "center",
+			gap: 8,
+			marginLeft: 8,
+		},
+		sortMenuContainer: {
+			position: "absolute",
+			top: 60,
+			right: 16,
+			backgroundColor: colors.white,
+			borderRadius: 8,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			shadowColor: colors.primary,
+			shadowOffset: { width: 2, height: 2 },
+			shadowOpacity: 1,
+			shadowRadius: 0,
+			elevation: 8,
+			zIndex: 1000,
+		},
+		sortMenuItem: {
+			paddingVertical: 12,
+			paddingHorizontal: 16,
+			minWidth: 180,
+		},
+		sortMenuItemActive: {
+			backgroundColor: colors.background,
+		},
+		sortMenuDivider: {
+			height: 1,
+			backgroundColor: colors.primary,
+		},
+		completedItem: {
+			textDecorationLine: "line-through",
+			color: colors.paragraphDisabled,
+		},
 	});
 
 	const renderItem = ({ item }: { item: ShoppingListInterface }) => {
@@ -245,7 +349,12 @@ export default function ShoppingList() {
 			>
 				<View style={styles.itemHeader}>
 					<View style={styles.itemInfo}>
-						<ThemedText style={styles.itemName}>
+						<ThemedText
+							style={[
+								styles.itemName,
+								isComplete && styles.completedItem,
+							]}
+						>
 							{item.name}
 						</ThemedText>
 					</View>
@@ -330,15 +439,91 @@ export default function ShoppingList() {
 							bottom: "50%",
 						}}
 					/>
-					<View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
-						<ThemedTextInput
-							placeholder="Rechercher un article..."
-							value={searchQuery}
-							onChangeText={setSearchQuery}
-							containerStyle={{ marginBottom: 0 }}
-						/>
+					<View
+						style={{
+							paddingHorizontal: 10,
+							paddingTop: 10,
+							flexDirection: "row",
+							alignItems: "center",
+						}}
+					>
+						<View style={{ flex: 1 }}>
+							<ThemedTextInput
+								placeholder="Rechercher un article..."
+								value={searchQuery}
+								onChangeText={setSearchQuery}
+								containerStyle={{ marginBottom: 0 }}
+							/>
+						</View>
+						<Pressable
+							style={styles.sortButton}
+							onPress={() => setShowSortMenu(!showSortMenu)}
+						>
+							<FontAwesome6
+								name="arrow-up-short-wide"
+								size={16}
+								color={colors.primary}
+							/>
+							<ThemedText
+								style={{ fontSize: 14, color: colors.primary }}
+							>
+								Trier
+							</ThemedText>
+						</Pressable>
 					</View>
 				</View>
+
+				{/* Sort Menu */}
+				{showSortMenu && (
+					<View style={styles.sortMenuContainer}>
+						<Pressable
+							style={[
+								styles.sortMenuItem,
+								sortBy === "default" &&
+									styles.sortMenuItemActive,
+							]}
+							onPress={() => {
+								setSortBy("default");
+								setShowSortMenu(false);
+							}}
+						>
+							<ThemedText style={{ fontSize: 14 }}>
+								Par défaut (non complétés)
+							</ThemedText>
+						</Pressable>
+						<View style={styles.sortMenuDivider} />
+						<Pressable
+							style={[
+								styles.sortMenuItem,
+								sortBy === "completed" &&
+									styles.sortMenuItemActive,
+							]}
+							onPress={() => {
+								setSortBy("completed");
+								setShowSortMenu(false);
+							}}
+						>
+							<ThemedText style={{ fontSize: 14 }}>
+								Complétés d'abord
+							</ThemedText>
+						</Pressable>
+						<View style={styles.sortMenuDivider} />
+						<Pressable
+							style={[
+								styles.sortMenuItem,
+								sortBy === "name" && styles.sortMenuItemActive,
+							]}
+							onPress={() => {
+								setSortBy("name");
+								setShowSortMenu(false);
+							}}
+						>
+							<ThemedText style={{ fontSize: 14 }}>
+								Par nom
+							</ThemedText>
+						</Pressable>
+					</View>
+				)}
 
 				<FlatList
 					data={filteredItems}
