@@ -99,7 +99,7 @@ export default function ThemedMessageInput({
 						{ opacity: pressed ? 0.8 : 1 },
 					]}
 				>
-					<FontAwesome6 name="send" size={18} color={colors.primary} />
+					<FontAwesome6 name="location-arrow" size={18} color={colors.primary} />
 				</Pressable>
 			</View>
 		</View>

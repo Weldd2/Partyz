@@ -52,7 +52,7 @@ export default function PartyLayout() {
 										style={{ paddingHorizontal: 8 }}
 									>
 										<FontAwesome6
-											name="code-pull-request"
+											name="pen-to-square"
 											size={20}
 											color={colors.white}
 										/>

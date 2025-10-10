@@ -46,7 +46,7 @@ export default function RootLayout() {
 							style={{ paddingHorizontal: 16 }}
 						>
 							<FontAwesome6
-								name="sign-out"
+								name="arrow-right-to-bracket"
 								size={20}
 								color={colors.white}
 							/>

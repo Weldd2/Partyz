@@ -519,7 +519,7 @@ export default function Gallery() {
 						]}
 						onPress={() => setSettingsVisible(!settingsVisible)}
 					>
-						<FontAwesome6 name="cog" size={20} color={colors.primary} />
+						<FontAwesome6 name="gear" size={20} color={colors.primary} />
 					</Pressable>
 
 					{settingsVisible && (
