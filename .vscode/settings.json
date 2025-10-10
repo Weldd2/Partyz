@@ -5,5 +5,5 @@
 		"source.sortMembers": "explicit"
 	},
 	"editor.formatOnSave": true,
-	"editor.fontSize": 18
+	"editor.fontSize": 16
 }

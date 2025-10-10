@@ -91,7 +91,9 @@ export default function ShoppingList() {
 			// Update existing items in sortedList with new data from shoppingList
 			return prevSorted
 				.map((sortedItem) => shoppingMap.get(sortedItem.id))
-				.filter((item): item is ShoppingListInterface => item !== undefined);
+				.filter(
+					(item): item is ShoppingListInterface => item !== undefined,
+				);
 		});
 	}, [shoppingList]);
 
@@ -240,6 +242,9 @@ export default function ShoppingList() {
 			fontSize: 14,
 			color: colors.paragraphDisabled,
 		},
+		button: {
+			// handle area touch
+		},
 		deleteButton: {
 			padding: 4,
 		},
@@ -293,21 +298,15 @@ export default function ShoppingList() {
 			elevation: 8,
 		},
 		sortButton: {
-			backgroundColor: colors.white,
-			borderRadius: 8,
-			borderWidth: 1,
-			borderColor: colors.primary,
 			paddingVertical: 8,
 			paddingHorizontal: 12,
-			flexDirection: "row",
-			alignItems: "center",
-			gap: 8,
 			marginLeft: 8,
+			backgroundColor: "red",
 		},
 		sortMenuContainer: {
 			position: "absolute",
-			top: 60,
-			right: 16,
+			top: "100%",
+			left: "100%",
 			backgroundColor: colors.white,
 			borderRadius: 8,
 			borderWidth: 1,
@@ -332,6 +331,9 @@ export default function ShoppingList() {
 			backgroundColor: colors.primary,
 		},
 		completedItem: {
+			opacity: 0.6,
+		},
+		completedItemText: {
 			textDecorationLine: "line-through",
 			color: colors.paragraphDisabled,
 		},
@@ -344,7 +346,7 @@ export default function ShoppingList() {
 
 		return (
 			<Pressable
-				style={styles.itemCard}
+				style={[styles.itemCard, isComplete && styles.completedItem]}
 				onPress={() => handleOpenBottomSheet(item)}
 			>
 				<View style={styles.itemHeader}>
@@ -352,7 +354,7 @@ export default function ShoppingList() {
 						<ThemedText
 							style={[
 								styles.itemName,
-								isComplete && styles.completedItem,
+								isComplete && styles.completedItemText,
 							]}
 						>
 							{item.name}
@@ -378,10 +380,17 @@ export default function ShoppingList() {
 					<View style={styles.controlButtons}>
 						<Pressable
 							style={[
+								styles.button,
 								item.broughtQuantity === 0 &&
 									styles.controlButtonDisabled,
 							]}
 							onPress={() => handleDecrement(item)}
+							hitSlop={{
+								top: 15,
+								bottom: 15,
+								left: 15,
+								right: 15,
+							}}
 						>
 							<FontAwesome6
 								name="minus"
@@ -395,8 +404,17 @@ export default function ShoppingList() {
 						</ThemedText>
 
 						<Pressable
-							style={[isComplete && styles.controlButtonDisabled]}
+							style={[
+								styles.button,
+								isComplete && styles.controlButtonDisabled,
+							]}
 							onPress={() => handleIncrement(item)}
+							hitSlop={{
+								top: 15,
+								bottom: 15,
+								left: 15,
+								right: 15,
+							}}
 						>
 							<FontAwesome6
 								name="plus"
@@ -422,7 +440,6 @@ export default function ShoppingList() {
 					headerTitleStyle: {
 						fontFamily: "HossRound",
 						fontSize: 18,
-						textTransform: "uppercase",
 					},
 					headerShadowVisible: false,
 				}}
@@ -455,75 +472,80 @@ export default function ShoppingList() {
 								containerStyle={{ marginBottom: 0 }}
 							/>
 						</View>
-						<Pressable
-							style={styles.sortButton}
-							onPress={() => setShowSortMenu(!showSortMenu)}
-						>
-							<FontAwesome6
-								name="arrow-up-short-wide"
-								size={16}
-								color={colors.primary}
-							/>
-							<ThemedText
-								style={{ fontSize: 14, color: colors.primary }}
-							>
-								Trier
-							</ThemedText>
-						</Pressable>
 					</View>
 				</View>
-
-				{/* Sort Menu */}
-				{showSortMenu && (
-					<View style={styles.sortMenuContainer}>
-						<Pressable
-							style={[
-								styles.sortMenuItem,
-								sortBy === "default" &&
-									styles.sortMenuItemActive,
-							]}
-							onPress={() => {
-								setSortBy("default");
-								setShowSortMenu(false);
+				<View style={{ alignSelf: "flex-start", zIndex: 99999 }}>
+					<Pressable
+						style={styles.sortButton}
+						onPress={() => setShowSortMenu(!showSortMenu)}
+					>
+						<FontAwesome6
+							name="arrow-up-short-wide"
+							size={16}
+							color={colors.paragraphDisabled}
+						/>
+						<ThemedText
+							style={{
+								fontSize: 14,
+								color: colors.paragraphDisabled,
 							}}
 						>
-							<ThemedText style={{ fontSize: 14 }}>
-								Par défaut (non complétés)
-							</ThemedText>
-						</Pressable>
-						<View style={styles.sortMenuDivider} />
-						<Pressable
-							style={[
-								styles.sortMenuItem,
-								sortBy === "completed" &&
-									styles.sortMenuItemActive,
-							]}
-							onPress={() => {
-								setSortBy("completed");
-								setShowSortMenu(false);
-							}}
-						>
-							<ThemedText style={{ fontSize: 14 }}>
-								Complétés d'abord
-							</ThemedText>
-						</Pressable>
-						<View style={styles.sortMenuDivider} />
-						<Pressable
-							style={[
-								styles.sortMenuItem,
-								sortBy === "name" && styles.sortMenuItemActive,
-							]}
-							onPress={() => {
-								setSortBy("name");
-								setShowSortMenu(false);
-							}}
-						>
-							<ThemedText style={{ fontSize: 14 }}>
-								Par nom
-							</ThemedText>
-						</Pressable>
-					</View>
-				)}
+							Trier
+						</ThemedText>
+						{/* Sort Menu */}
+						{showSortMenu && (
+							<View style={styles.sortMenuContainer}>
+								<Pressable
+									style={[
+										styles.sortMenuItem,
+										sortBy === "default" &&
+											styles.sortMenuItemActive,
+									]}
+									onPress={() => {
+										setSortBy("default");
+										setShowSortMenu(false);
+									}}
+								>
+									<ThemedText style={{ fontSize: 14 }}>
+										Par défaut (non complétés)
+									</ThemedText>
+								</Pressable>
+								<View style={styles.sortMenuDivider} />
+								<Pressable
+									style={[
+										styles.sortMenuItem,
+										sortBy === "completed" &&
+											styles.sortMenuItemActive,
+									]}
+									onPress={() => {
+										setSortBy("completed");
+										setShowSortMenu(false);
+									}}
+								>
+									<ThemedText style={{ fontSize: 14 }}>
+										Complétés d'abord
+									</ThemedText>
+								</Pressable>
+								<View style={styles.sortMenuDivider} />
+								<Pressable
+									style={[
+										styles.sortMenuItem,
+										sortBy === "name" &&
+											styles.sortMenuItemActive,
+									]}
+									onPress={() => {
+										setSortBy("name");
+										setShowSortMenu(false);
+									}}
+								>
+									<ThemedText style={{ fontSize: 14 }}>
+										Par nom
+									</ThemedText>
+								</Pressable>
+							</View>
+						)}
+					</Pressable>
+				</View>
 
 				<FlatList
 					data={filteredItems}
