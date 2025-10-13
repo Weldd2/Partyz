@@ -1,8 +1,9 @@
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
 import ThemedButton from "../ThemedButton";
 import ThemedText from "../ThemedText";
 
@@ -12,9 +13,9 @@ const getStyles = (colors: typeof Colors.light) =>
 			width: "100%",
 		},
 		label: {
-			fontSize: 16,
+			fontSize: 14,
 			marginBottom: 8,
-			color: colors.paragraph,
+			color: colors.paragraphDisabled,
 		},
 		inputContainer: {
 			backgroundColor: colors.white,
@@ -46,57 +47,20 @@ const getStyles = (colors: typeof Colors.light) =>
 		modalOverlay: {
 			flex: 1,
 			backgroundColor: "rgba(0, 0, 0, 0.5)",
-			justifyContent: "center",
-			alignItems: "center",
-			padding: 20,
+			justifyContent: "flex-end",
 		},
 		modalContent: {
 			backgroundColor: colors.white,
-			borderRadius: 8,
+			borderTopLeftRadius: 20,
+			borderTopRightRadius: 20,
 			padding: 20,
-			width: "100%",
-			maxWidth: 400,
-			borderWidth: 2,
-			borderColor: colors.primary,
-			maxHeight: "80%",
+			paddingBottom: 40,
 		},
-		modalButtons: {
-			flexDirection: "row",
-			justifyContent: "flex-end",
-			gap: 10,
-			marginTop: 20,
-		},
-		pickerRow: {
+		modalHeader: {
 			flexDirection: "row",
 			justifyContent: "space-between",
-			gap: 10,
-			marginVertical: 10,
-		},
-		pickerColumn: {
-			flex: 1,
-		},
-		pickerButton: {
-			paddingVertical: 8,
-			paddingHorizontal: 12,
-			borderRadius: 4,
-			borderWidth: 1,
-			borderColor: colors.primary,
-			marginBottom: 8,
-		},
-		pickerButtonActive: {
-			backgroundColor: colors.primary,
-		},
-		pickerText: {
-			textAlign: "center",
-		},
-		pickerTextActive: {
-			color: colors.white,
-		},
-		sectionTitle: {
-			fontSize: 14,
-			marginTop: 10,
-			marginBottom: 5,
-			color: colors.paragraphDisabled,
+			alignItems: "center",
+			marginBottom: 20,
 		},
 	});
 
@@ -122,6 +86,7 @@ export default function ThemedDatePicker({
 	const colors = useThemeColors();
 	const styles = getStyles(colors);
 	const [showPicker, setShowPicker] = useState(false);
+	const [showTimePicker, setShowTimePicker] = useState(false);
 	const [tempDate, setTempDate] = useState(value || new Date());
 
 	const formatDate = (date: Date) => {
@@ -147,6 +112,33 @@ export default function ThemedDatePicker({
 		}
 	};
 
+	const handleDateChange = (_event: any, selectedDate?: Date) => {
+		if (Platform.OS === "android") {
+			setShowPicker(false);
+			if (selectedDate) {
+				if (mode === "datetime") {
+					// On Android, for datetime mode, first show date picker, then time picker
+					setTempDate(selectedDate);
+					setShowTimePicker(true);
+				} else {
+					onChange(selectedDate);
+				}
+			}
+		} else {
+			// On iOS, update the temp date as user scrolls
+			if (selectedDate) {
+				setTempDate(selectedDate);
+			}
+		}
+	};
+
+	const handleTimeChange = (_event: any, selectedDate?: Date) => {
+		setShowTimePicker(false);
+		if (selectedDate) {
+			onChange(selectedDate);
+		}
+	};
+
 	const handleConfirm = () => {
 		onChange(tempDate);
 		setShowPicker(false);
@@ -157,298 +149,118 @@ export default function ThemedDatePicker({
 		setShowPicker(false);
 	};
 
-	const days = Array.from({ length: 31 }, (_, i) => i + 1);
-	const months = [
-		"Janvier",
-		"Février",
-		"Mars",
-		"Avril",
-		"Mai",
-		"Juin",
-		"Juillet",
-		"Août",
-		"Septembre",
-		"Octobre",
-		"Novembre",
-		"Décembre",
-	];
-	const currentYear = new Date().getFullYear();
-	const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
-	const hours = Array.from({ length: 24 }, (_, i) => i);
-	const minutes = [0, 15, 30, 45];
+	const handlePress = () => {
+		setTempDate(value || new Date());
+		setShowPicker(true);
+	};
+
+	// On Android, the picker shows as a dialog automatically
+	const renderAndroidPicker = () => {
+		if (!showPicker && !showTimePicker) return null;
+
+		if (showTimePicker) {
+			return (
+				<DateTimePicker
+					value={tempDate}
+					mode="time"
+					is24Hour={true}
+					display="default"
+					onChange={handleTimeChange}
+				/>
+			);
+		}
+
+		return (
+			<DateTimePicker
+				value={tempDate}
+				mode={mode === "datetime" ? "date" : mode}
+				is24Hour={true}
+				display="default"
+				onChange={handleDateChange}
+			/>
+		);
+	};
+
+	// On iOS, we show the picker in a modal at the bottom
+	const renderIOSPicker = () => {
+		if (!showPicker) return null;
+
+		return (
+			<Modal
+				visible={showPicker}
+				transparent
+				animationType="slide"
+				onRequestClose={handleCancel}
+			>
+				<Pressable style={styles.modalOverlay} onPress={handleCancel}>
+					<Pressable onPress={(e) => e.stopPropagation()}>
+						<View style={styles.modalContent}>
+							<View style={styles.modalHeader}>
+								<ThemedButton
+									text="Annuler"
+									variant="primary2"
+									onPress={handleCancel}
+								/>
+								<ThemedText variant="h2">
+									{mode === "time"
+										? "Heure"
+										: mode === "date"
+											? "Date"
+											: "Date et heure"}
+								</ThemedText>
+								<ThemedButton
+									text="Confirmer"
+									onPress={handleConfirm}
+								/>
+							</View>
+							<View
+								style={{
+									width: "100%",
+									justifyContent: "center",
+									alignItems: "center",
+								}}
+							>
+								<DateTimePicker
+									value={tempDate}
+									mode={mode}
+									textColor={colors.primary}
+									is24Hour={true}
+									locale="FR-fr"
+									display="spinner"
+									onChange={handleDateChange}
+								/>
+							</View>
+						</View>
+					</Pressable>
+				</Pressable>
+			</Modal>
+		);
+	};
 
 	return (
 		<View style={[styles.container, containerStyle]}>
 			{label && <ThemedText style={styles.label}>{label}</ThemedText>}
 			<Pressable
-				onPress={() => setShowPicker(true)}
-				style={[styles.inputContainer, error ? styles.error : undefined]}
+				onPress={handlePress}
+				style={[
+					styles.inputContainer,
+					error ? styles.error : undefined,
+				]}
 			>
 				<ThemedText
 					style={value ? styles.valueText : styles.placeholder}
 				>
 					{value ? formatDate(value) : placeholder}
 				</ThemedText>
-				<FontAwesome6 name="calendar" size={20} color={colors.primary} />
+				<FontAwesome6
+					name="calendar"
+					size={20}
+					color={colors.primary}
+				/>
 			</Pressable>
 			{error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
 
-			<Modal
-				visible={showPicker}
-				transparent
-				animationType="fade"
-				onRequestClose={handleCancel}
-			>
-				<View style={styles.modalOverlay}>
-					<View style={styles.modalContent}>
-						<ThemedText variant="h2" style={{ textAlign: "center" }}>
-							{mode === "time"
-								? "Heure"
-								: mode === "date"
-									? "Date"
-									: "Date et heure"}
-						</ThemedText>
-
-						<ScrollView style={{ maxHeight: 400 }}>
-							{(mode === "date" || mode === "datetime") && (
-								<>
-									<ThemedText style={styles.sectionTitle}>
-										Jour
-									</ThemedText>
-									<View
-										style={{
-											flexDirection: "row",
-											flexWrap: "wrap",
-											gap: 8,
-										}}
-									>
-										{days.map((day) => {
-											const isActive =
-												tempDate.getDate() === day;
-											return (
-												<Pressable
-													key={day}
-													onPress={() => {
-														const newDate =
-															new Date(tempDate);
-														newDate.setDate(day);
-														setTempDate(newDate);
-													}}
-													style={[
-														styles.pickerButton,
-														{
-															width: 45,
-															height: 45,
-														},
-														isActive &&
-															styles.pickerButtonActive,
-													]}
-												>
-													<ThemedText
-														style={[
-															styles.pickerText,
-															isActive &&
-																styles.pickerTextActive,
-														]}
-													>
-														{day}
-													</ThemedText>
-												</Pressable>
-											);
-										})}
-									</View>
-
-									<ThemedText style={styles.sectionTitle}>
-										Mois
-									</ThemedText>
-									<View style={{ gap: 8 }}>
-										{months.map((month, index) => {
-											const isActive =
-												tempDate.getMonth() === index;
-											return (
-												<Pressable
-													key={month}
-													onPress={() => {
-														const newDate =
-															new Date(tempDate);
-														newDate.setMonth(index);
-														setTempDate(newDate);
-													}}
-													style={[
-														styles.pickerButton,
-														isActive &&
-															styles.pickerButtonActive,
-													]}
-												>
-													<ThemedText
-														style={[
-															styles.pickerText,
-															isActive &&
-																styles.pickerTextActive,
-														]}
-													>
-														{month}
-													</ThemedText>
-												</Pressable>
-											);
-										})}
-									</View>
-
-									<ThemedText style={styles.sectionTitle}>
-										Année
-									</ThemedText>
-									<View style={{ gap: 8 }}>
-										{years.map((year) => {
-											const isActive =
-												tempDate.getFullYear() === year;
-											return (
-												<Pressable
-													key={year}
-													onPress={() => {
-														const newDate =
-															new Date(tempDate);
-														newDate.setFullYear(
-															year,
-														);
-														setTempDate(newDate);
-													}}
-													style={[
-														styles.pickerButton,
-														isActive &&
-															styles.pickerButtonActive,
-													]}
-												>
-													<ThemedText
-														style={[
-															styles.pickerText,
-															isActive &&
-																styles.pickerTextActive,
-														]}
-													>
-														{year}
-													</ThemedText>
-												</Pressable>
-											);
-										})}
-									</View>
-								</>
-							)}
-
-							{(mode === "time" || mode === "datetime") && (
-								<>
-									<ThemedText style={styles.sectionTitle}>
-										Heure
-									</ThemedText>
-									<View
-										style={{
-											flexDirection: "row",
-											flexWrap: "wrap",
-											gap: 8,
-										}}
-									>
-										{hours.map((hour) => {
-											const isActive =
-												tempDate.getHours() === hour;
-											return (
-												<Pressable
-													key={hour}
-													onPress={() => {
-														const newDate =
-															new Date(tempDate);
-														newDate.setHours(hour);
-														setTempDate(newDate);
-													}}
-													style={[
-														styles.pickerButton,
-														{
-															width: 55,
-															height: 45,
-														},
-														isActive &&
-															styles.pickerButtonActive,
-													]}
-												>
-													<ThemedText
-														style={[
-															styles.pickerText,
-															isActive &&
-																styles.pickerTextActive,
-														]}
-													>
-														{hour
-															.toString()
-															.padStart(2, "0")}
-														h
-													</ThemedText>
-												</Pressable>
-											);
-										})}
-									</View>
-
-									<ThemedText style={styles.sectionTitle}>
-										Minutes
-									</ThemedText>
-									<View
-										style={{
-											flexDirection: "row",
-											gap: 8,
-										}}
-									>
-										{minutes.map((minute) => {
-											const isActive =
-												tempDate.getMinutes() ===
-												minute;
-											return (
-												<Pressable
-													key={minute}
-													onPress={() => {
-														const newDate =
-															new Date(tempDate);
-														newDate.setMinutes(
-															minute,
-														);
-														setTempDate(newDate);
-													}}
-													style={[
-														styles.pickerButton,
-														{ flex: 1, height: 45 },
-														isActive &&
-															styles.pickerButtonActive,
-													]}
-												>
-													<ThemedText
-														style={[
-															styles.pickerText,
-															isActive &&
-																styles.pickerTextActive,
-														]}
-													>
-														{minute
-															.toString()
-															.padStart(2, "0")}
-													</ThemedText>
-												</Pressable>
-											);
-										})}
-									</View>
-								</>
-							)}
-						</ScrollView>
-
-						<View style={styles.modalButtons}>
-							<ThemedButton
-								text="Annuler"
-								variant="primary2"
-								onPress={handleCancel}
-							/>
-							<ThemedButton
-								text="Confirmer"
-								onPress={handleConfirm}
-							/>
-						</View>
-					</View>
-				</View>
-			</Modal>
+			{Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
 		</View>
 	);
 }

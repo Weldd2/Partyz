@@ -10,9 +10,9 @@ const getStyles = (colors: typeof Colors.light) =>
 			width: "100%",
 		},
 		label: {
-			fontSize: 16,
+			fontSize: 14,
 			marginBottom: 8,
-			color: colors.paragraph,
+			color: colors.paragraphDisabled,
 		},
 		inputContainer: {
 			backgroundColor: colors.white,

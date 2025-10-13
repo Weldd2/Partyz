@@ -298,13 +298,13 @@ export default function ShoppingList() {
 			elevation: 8,
 		},
 		sortButton: {
-			paddingVertical: 8,
+			paddingTop: 16,
 			paddingHorizontal: 12,
 			marginLeft: 8,
 		},
 		sortMenuContainer: {
 			position: "absolute",
-			top: 45,
+			top: 60,
 			left: 0,
 			padding: 2,
 			backgroundColor: colors.white,
@@ -453,7 +453,7 @@ export default function ShoppingList() {
 							height: "400%",
 							width: "100%",
 							right: 0,
-							bottom: "50%",
+							bottom: "40%",
 						}}
 					/>
 					<View

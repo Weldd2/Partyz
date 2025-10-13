@@ -87,16 +87,12 @@ export default function EditParty() {
 
 		console.log("Party data to update:", partyData);
 
-		Alert.alert(
-			"Succès",
-			"La party a été modifiée avec succès !",
-			[
-				{
-					text: "OK",
-					onPress: () => router.back(),
-				},
-			],
-		);
+		Alert.alert("Succès", "La party a été modifiée avec succès !", [
+			{
+				text: "OK",
+				onPress: () => router.back(),
+			},
+		]);
 	};
 
 	const handleAddMembers = () => {
@@ -181,7 +177,6 @@ export default function EditParty() {
 						headerTitleStyle: {
 							fontFamily: "HossRound",
 							fontSize: 18,
-							textTransform: "uppercase",
 						},
 						headerShadowVisible: false,
 					}}
@@ -205,7 +200,6 @@ export default function EditParty() {
 					headerTitleStyle: {
 						fontFamily: "HossRound",
 						fontSize: 18,
-						textTransform: "uppercase",
 					},
 					headerShadowVisible: false,
 				}}
@@ -266,13 +260,16 @@ export default function EditParty() {
 								alignItems: "center",
 							}}
 						>
-							<ThemedText variant="h2" style={styles.sectionTitle}>
+							<ThemedText
+								variant="h2"
+								style={styles.sectionTitle}
+							>
 								Participants
 							</ThemedText>
 							<Pressable onPress={handleAddMembers}>
 								<FontAwesome6
-									name="plus-circle"
-									size={28}
+									name="user-group"
+									size={20}
 									color={colors.primary}
 								/>
 							</Pressable>
@@ -306,7 +303,7 @@ export default function EditParty() {
 												}}
 											>
 												<FontAwesome6
-													name="times"
+													name="xmark"
 													size={14}
 													color={colors.primary}
 												/>
