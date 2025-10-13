@@ -2,8 +2,9 @@ import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import { PartyInterface } from "@/types/PartyInterface";
 import * as Calendar from "expo-calendar";
+import { Link } from "expo-router";
 import { memo, useCallback, useMemo } from "react";
-import { Alert, Platform, Share, StyleSheet, View } from "react-native";
+import { Alert, Share, StyleSheet, View } from "react-native";
 import ThemedButton from "./Theme/ThemedButton";
 import ThemedText from "./Theme/ThemedText";
 
@@ -136,7 +137,9 @@ const PartyCard = memo(({ party }: Props) => {
 
 			// If no primary calendar found, use the first modifiable one
 			if (!defaultCalendar) {
-				defaultCalendar = calendars.find((cal) => cal.allowsModifications);
+				defaultCalendar = calendars.find(
+					(cal) => cal.allowsModifications,
+				);
 			}
 
 			if (!defaultCalendar) {
@@ -206,11 +209,15 @@ const PartyCard = memo(({ party }: Props) => {
 				<ThemedText
 					style={{
 						fontSize: 16,
-						textDecorationLine: "underline",
 					}}
 				>
-					{party.owner.firstname} et {party.members.length} autres
-					personnes
+					{party.owner.firstname} et{" "}
+					<Link
+						href={`/party/members/${party.id}`}
+						style={{ textDecorationLine: "underline" }}
+					>
+						{party.members.length} autres personnes
+					</Link>
 				</ThemedText>
 				<ThemedText
 					style={{
