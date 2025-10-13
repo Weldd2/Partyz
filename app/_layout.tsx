@@ -59,6 +59,12 @@ export default function RootLayout() {
 			<Stack.Screen name="party/create" />
 			<Stack.Screen name="party/edit/[id]" />
 			<Stack.Screen name="party/shopping-list/[id]" />
+			<Stack.Screen
+				name="party/members/[id]"
+				options={{
+					title: "Participants",
+				}}
+			/>
 		</Stack>
 	);
 }

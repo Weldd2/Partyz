@@ -176,6 +176,38 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Menard",
 				},
 			],
+			invitations: [
+				{
+					"@id": "/api/invitations/1",
+					"@type": "Invitation",
+					id: "1",
+					invitedUser: {
+						"@id": "/api/users/22",
+						"@type": "User",
+						id: 22,
+						phoneNumber: "+33612345678",
+						firstname: "Sophie",
+						lastname: "Martin",
+					},
+					status: "pending",
+					invitedAt: "2025-09-15T10:00:00+00:00",
+				},
+				{
+					"@id": "/api/invitations/2",
+					"@type": "Invitation",
+					id: "2",
+					invitedUser: {
+						"@id": "/api/users/23",
+						"@type": "User",
+						id: 23,
+						phoneNumber: "+33687654321",
+						firstname: "Lucas",
+						lastname: "Dubois",
+					},
+					status: "pending",
+					invitedAt: "2025-09-16T14:30:00+00:00",
+				},
+			],
 			shoppingList: [
 				{
 					"@id": "/api/shopping_list_items/1",
@@ -420,6 +452,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/2",
@@ -447,6 +480,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/3",
@@ -474,6 +508,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/4",
@@ -501,6 +536,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/5",
@@ -528,6 +564,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/6",
@@ -555,6 +592,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/7",
@@ -582,6 +620,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/8",
@@ -609,6 +648,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/9",
@@ -636,6 +676,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/10",
@@ -663,6 +704,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/11",
@@ -690,6 +732,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/12",
@@ -717,6 +760,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/13",
@@ -744,6 +788,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/14",
@@ -771,6 +816,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/15",
@@ -798,6 +844,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/16",
@@ -825,6 +872,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/17",
@@ -852,6 +900,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/18",
@@ -879,6 +928,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/19",
@@ -906,6 +956,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/20",
@@ -933,6 +984,7 @@ const partiesFixture: ApiCollectionInterface<PartyInterface> = {
 					lastname: "Mura",
 				},
 			],
+			invitations: [],
 			shoppingList: [],
 			owner: {
 				"@id": "/api/users/21",

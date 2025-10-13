@@ -81,6 +81,33 @@ export default function Detail() {
 						Participants
 					</ThemedText>
 					<UserSlider users={party.members} />
+					<View
+						style={{
+							alignSelf: "center",
+						}}
+					>
+						<ThemedButton
+							style={{
+								flexDirection: "row",
+								gap: 10,
+							}}
+							onPress={() => {
+								router.push(`/party/members/${id}`);
+							}}
+						>
+							<ThemedText
+								color="white"
+								style={{ fontSize: 16 }}
+							>
+								Voir tous les participants
+							</ThemedText>
+							<FontAwesome6
+								size={20}
+								name="arrow-right"
+								color={colors.white}
+							/>
+						</ThemedButton>
+					</View>
 				</View>
 				<View style={{ gap: 30 }}>
 					<ThemedText
