@@ -1,6 +1,7 @@
 import ThemedText from "@/components/Theme/ThemedText";
 import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
+import { colord } from "colord";
 import { Pressable } from "react-native";
 
 const getStyles = (colors: typeof Colors.light) => ({
@@ -26,19 +27,29 @@ const getVariantStyle = (colors: typeof Colors.light) => ({
 		text: {
 			color: colors.white,
 		},
+		pressed: {
+			backgroundColor: colord(colors.primary).lighten(0.04).toHex(),
+		},
 	},
 	secondary: {
 		btn: {},
 		text: {},
+		pressed: {},
 	},
 	primary2: {
 		btn: {
-			// backgroundColor: colors.primary,
+			backgroundColor: colors.white,
 			borderColor: colors.primary,
 			borderWidth: 1,
 		},
 		text: {
 			color: colors.primary,
+		},
+		pressed: {
+			backgroundColor: colord(colors.white)
+				.darken(0.05)
+				.grayscale()
+				.toHex(),
 		},
 	},
 });
@@ -74,9 +85,7 @@ export default function ThemedButton({
 			style={({ pressed }: { pressed: boolean }) => [
 				styles.btn,
 				variantStyles[variant].btn,
-				{
-					opacity: pressed ? 0.9 : 1,
-				},
+				pressed ? variantStyles[variant].pressed : undefined,
 				disabled ? styles.disabled : undefined,
 				rest.style as any,
 			]}
