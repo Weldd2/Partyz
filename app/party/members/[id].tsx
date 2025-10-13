@@ -8,13 +8,14 @@ import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, TextInput, View } from "react-native";
 
 export default function Members() {
 	const colors = useThemeColors();
 	const styles = useMemo(() => getStyles(colors), [colors]);
 	const { id } = useLocalSearchParams();
 	const [contactPickerVisible, setContactPickerVisible] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
 
 	// In a real app, you would fetch the party data based on the id
 	const party = partiesFixture.member[0];
@@ -37,73 +38,156 @@ export default function Members() {
 		[party.invitations],
 	);
 
+	const filteredMembers = useMemo(() => {
+		if (!searchQuery.trim()) return party.members;
+		const query = searchQuery.toLowerCase();
+		return party.members.filter(
+			(member) =>
+				member.firstname.toLowerCase().includes(query) ||
+				member.lastname.toLowerCase().includes(query),
+		);
+	}, [party.members, searchQuery]);
+
 	return (
 		<ScrollView
 			style={[styles.container, { backgroundColor: colors.background }]}
+			showsVerticalScrollIndicator={false}
 		>
-			<View style={styles.content}>
-				<View style={styles.section}>
-					<View style={styles.sectionHeader}>
-						<ThemedText variant="h2" style={styles.sectionTitle}>
+			{/* Header Stats Card */}
+			<View style={styles.headerCard}>
+				<View style={styles.statsRow}>
+					<View style={styles.statItem}>
+						<FontAwesome6
+							name="user-check"
+							size={24}
+							color={colors.primary}
+						/>
+						<ThemedText variant="h2" style={styles.statNumber}>
+							{party.members.length}
+						</ThemedText>
+						<ThemedText style={styles.statLabel}>
 							Participants
 						</ThemedText>
-						<ThemedButton
-							onPress={() => setContactPickerVisible(true)}
-							style={styles.inviteButton}
-						>
-							<FontAwesome6
-								name="user-plus"
-								size={18}
-								color={colors.white}
-							/>
-							<ThemedText color="white" style={styles.inviteButtonText}>
-								Inviter
-							</ThemedText>
-						</ThemedButton>
 					</View>
-					<ThemedText style={styles.sectionDescription}>
-						{party.members.length}{" "}
-						{party.members.length > 1 ? "personnes participent" : "personne participe"}{" "}
-						à cette soirée
-					</ThemedText>
+					<View style={styles.statDivider} />
+					<View style={styles.statItem}>
+						<FontAwesome6
+							name="clock"
+							size={24}
+							color={colors.third}
+						/>
+						<ThemedText variant="h2" style={styles.statNumber}>
+							{pendingInvitations.length}
+						</ThemedText>
+						<ThemedText style={styles.statLabel}>
+							En attente
+						</ThemedText>
+					</View>
 				</View>
+				<ThemedButton
+					onPress={() => setContactPickerVisible(true)}
+					style={styles.inviteButton}
+				>
+					<FontAwesome6
+						name="user-plus"
+						size={20}
+						color={colors.white}
+					/>
+					<ThemedText color="white" style={styles.inviteButtonText}>
+						Inviter des amis
+					</ThemedText>
+				</ThemedButton>
+			</View>
 
+			<View style={styles.content}>
+				{/* Pending Invitations Section */}
 				{pendingInvitations.length > 0 && (
-					<View style={styles.section}>
-						<View style={styles.subsectionHeader}>
-							<FontAwesome6
-								name="clock"
-								size={16}
-								color={colors.third}
-								style={styles.subsectionIcon}
-							/>
-							<ThemedText style={styles.subsectionTitle}>
-								En attente de réponse ({pendingInvitations.length})
-							</ThemedText>
+					<View style={styles.pendingSection}>
+						<View style={styles.pendingHeader}>
+							<View style={styles.pendingBadge}>
+								<FontAwesome6
+									name="clock"
+									size={14}
+									color={colors.primary}
+								/>
+								<ThemedText style={styles.pendingBadgeText}>
+									{pendingInvitations.length} en attente
+								</ThemedText>
+							</View>
 						</View>
-						<ThemedText style={styles.subsectionDescription}>
-							Ces personnes ont été invitées mais n'ont pas encore répondu
+						<ThemedText style={styles.pendingSectionDescription}>
+							Ces personnes ont été invitées et n'ont pas encore
+							répondu
 						</ThemedText>
 						<InvitedUsersList invitations={pendingInvitations} />
 					</View>
 				)}
 
-				<View style={styles.section}>
-					<View style={styles.subsectionHeader}>
-						<FontAwesome6
-							name="check-circle"
-							size={16}
-							color={colors.green}
-							style={styles.subsectionIcon}
-						/>
-						<ThemedText style={styles.subsectionTitle}>
-							Membres confirmés ({party.members.length})
-						</ThemedText>
+				{/* Members Section */}
+				<View style={styles.membersSection}>
+					<View style={styles.membersSectionHeader}>
+						<View>
+							<ThemedText
+								variant="h2"
+								style={styles.membersSectionTitle}
+							>
+								Membres confirmés
+							</ThemedText>
+							<ThemedText style={styles.membersSectionSubtitle}>
+								{filteredMembers.length} sur{" "}
+								{party.members.length}
+								{searchQuery ? " (filtré)" : ""}
+							</ThemedText>
+						</View>
 					</View>
-					<ThemedText style={styles.subsectionDescription}>
-						Ces personnes participent à la soirée
-					</ThemedText>
-					<PartyMembersList members={party.members} owner={party.owner} />
+
+					{/* Search Bar */}
+					<View style={styles.searchContainer}>
+						<FontAwesome6
+							name="magnifying-glass"
+							size={20}
+							color={colors.paragraphDisabled}
+							style={styles.searchIcon}
+						/>
+						<TextInput
+							style={styles.searchInput}
+							placeholder="Rechercher un participant..."
+							placeholderTextColor={colors.paragraphDisabled}
+							value={searchQuery}
+							onChangeText={setSearchQuery}
+						/>
+						{searchQuery.length > 0 && (
+							<FontAwesome6
+								name="xmark"
+								size={16}
+								color={colors.paragraphDisabled}
+								style={styles.clearIcon}
+								onPress={() => setSearchQuery("")}
+							/>
+						)}
+					</View>
+
+					{filteredMembers.length === 0 ? (
+						<View style={styles.emptyState}>
+							<FontAwesome6
+								name="user-slash"
+								size={48}
+								color={colors.paragraphDisabled}
+								style={styles.emptyIcon}
+							/>
+							<ThemedText style={styles.emptyText}>
+								Aucun participant trouvé
+							</ThemedText>
+							<ThemedText style={styles.emptySubtext}>
+								Essayez avec un autre nom
+							</ThemedText>
+						</View>
+					) : (
+						<PartyMembersList
+							members={filteredMembers}
+							owner={party.owner}
+						/>
+					)}
 				</View>
 			</View>
 
@@ -125,53 +209,156 @@ const getStyles = (colors: ReturnType<typeof useThemeColors>) =>
 		container: {
 			flex: 1,
 		},
-		content: {
+		headerCard: {
+			backgroundColor: colors.white,
+			marginHorizontal: 15,
+			marginTop: 15,
+			marginBottom: 10,
 			padding: 20,
-			gap: 40,
-		},
-		section: {
+			borderRadius: 12,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			shadowColor: colors.primary,
+			shadowOffset: { width: 2, height: 2 },
+			shadowOpacity: 1,
+			shadowRadius: 0,
 			gap: 20,
 		},
-		sectionHeader: {
+		statsRow: {
 			flexDirection: "row",
-			justifyContent: "space-between",
+			justifyContent: "space-around",
 			alignItems: "center",
 		},
-		sectionTitle: {
-			textTransform: "uppercase",
+		statItem: {
+			flex: 1,
+			alignItems: "center",
+			gap: 8,
 		},
-		sectionDescription: {
-			fontSize: 14,
+		statDivider: {
+			width: 1,
+			height: 60,
+			backgroundColor: colors.primary,
+			opacity: 0.2,
+		},
+		statNumber: {
+			fontSize: 32,
+			fontFamily: "HossRound-Bold",
+		},
+		statLabel: {
+			fontSize: 13,
 			opacity: 0.7,
-			lineHeight: 20,
+			textAlign: "center",
 		},
 		inviteButton: {
-			paddingHorizontal: 20,
-			paddingVertical: 10,
+			paddingVertical: 14,
 			flexDirection: "row",
 			gap: 10,
+			justifyContent: "center",
 			alignItems: "center",
 		},
 		inviteButtonText: {
 			fontSize: 16,
-			fontWeight: "600",
+			fontFamily: "HossRound-Bold",
 		},
-		subsectionHeader: {
+		content: {
+			padding: 15,
+			gap: 25,
+		},
+		pendingSection: {
+			backgroundColor: colors.white,
+			borderRadius: 12,
+			borderWidth: 1,
+			borderColor: colors.third,
+			padding: 15,
+			gap: 12,
+			shadowColor: colors.third,
+			shadowOffset: { width: 2, height: 2 },
+			shadowOpacity: 0.5,
+			shadowRadius: 0,
+		},
+		pendingHeader: {
+			flexDirection: "row",
+			justifyContent: "space-between",
+			alignItems: "center",
+		},
+		pendingBadge: {
 			flexDirection: "row",
 			alignItems: "center",
-			paddingTop: 10,
+			gap: 8,
+			backgroundColor: colors.third,
+			paddingHorizontal: 12,
+			paddingVertical: 6,
+			borderRadius: 20,
 		},
-		subsectionIcon: {
-			marginRight: 8,
+		pendingBadgeText: {
+			fontSize: 13,
+			fontFamily: "HossRound-Bold",
+			color: colors.primary,
 		},
-		subsectionTitle: {
-			fontSize: 16,
-			fontWeight: "700",
+		pendingSectionDescription: {
+			fontSize: 13,
+			opacity: 0.7,
+			lineHeight: 18,
 		},
-		subsectionDescription: {
+		membersSection: {
+			gap: 15,
+		},
+		membersSectionHeader: {
+			flexDirection: "row",
+			justifyContent: "space-between",
+			alignItems: "flex-start",
+		},
+		membersSectionTitle: {
+			textTransform: "uppercase",
+			fontSize: 20,
+		},
+		membersSectionSubtitle: {
 			fontSize: 13,
 			opacity: 0.6,
-			lineHeight: 18,
-			marginTop: -10,
+			marginTop: 4,
+		},
+		searchContainer: {
+			flexDirection: "row",
+			alignItems: "center",
+			backgroundColor: colors.white,
+			borderRadius: 8,
+			borderWidth: 1,
+			borderColor: colors.primary,
+			paddingHorizontal: 12,
+			paddingVertical: 10,
+			gap: 10,
+		},
+		searchIcon: {
+			opacity: 0.6,
+		},
+		searchInput: {
+			flex: 1,
+			fontSize: 15,
+			fontFamily: "HossRound",
+			color: colors.paragraph,
+			padding: 0,
+		},
+		clearIcon: {
+			opacity: 0.6,
+			padding: 4,
+		},
+		emptyState: {
+			alignItems: "center",
+			paddingVertical: 40,
+			gap: 10,
+		},
+		emptyIcon: {
+			marginBottom: 10,
+			opacity: 0.4,
+		},
+		emptyText: {
+			fontSize: 16,
+			fontFamily: "HossRound-Bold",
+			color: colors.paragraphDisabled,
+		},
+		emptySubtext: {
+			fontSize: 14,
+			opacity: 0.6,
+			color: colors.paragraphDisabled,
 		},
 	});

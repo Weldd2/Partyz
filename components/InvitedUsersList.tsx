@@ -1,6 +1,7 @@
 import ThemedText from "@/components/Theme/ThemedText";
 import useThemeColors from "@/hooks/useThemeColors";
 import { InvitationInterface } from "@/types/InvitationInterface";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "expo-image";
 import { memo, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
@@ -25,7 +26,7 @@ const InvitedUsersList = memo(function InvitedUsersList({
 	}
 
 	const renderInvitation = ({ item }: { item: InvitationInterface }) => (
-		<View style={styles.invitationItem}>
+		<View style={styles.invitationCard}>
 			<View style={styles.avatarContainer}>
 				<Image
 					source={`https://i.pravatar.cc/150?u=${item.invitedUser.id}`}
@@ -33,14 +34,20 @@ const InvitedUsersList = memo(function InvitedUsersList({
 					contentFit="cover"
 				/>
 				<View style={styles.pendingBadge}>
-					<ThemedText style={styles.pendingBadgeText}>?</ThemedText>
+					<FontAwesome6
+						name="clock"
+						size={10}
+						color={colors.primary}
+					/>
 				</View>
 			</View>
 			<View style={styles.userInfo}>
 				<ThemedText style={styles.userName}>
-					{item.invitedUser.firstname} {item.invitedUser.lastname}
+					{item.invitedUser.firstname}
 				</ThemedText>
-				<ThemedText style={styles.statusText}>En attente</ThemedText>
+				<ThemedText style={styles.userLastname}>
+					{item.invitedUser.lastname}
+				</ThemedText>
 			</View>
 		</View>
 	);
@@ -62,58 +69,57 @@ const InvitedUsersList = memo(function InvitedUsersList({
 const getStyles = (colors: ReturnType<typeof useThemeColors>) =>
 	StyleSheet.create({
 		container: {
-			marginVertical: 10,
+			marginVertical: 5,
 		},
 		listContent: {
-			gap: 15,
-			paddingHorizontal: 5,
+			gap: 12,
+			paddingVertical: 5,
 		},
-		invitationItem: {
+		invitationCard: {
 			alignItems: "center",
-			gap: 8,
-			width: 80,
+			gap: 10,
+			backgroundColor: colors.background,
+			borderRadius: 10,
+			padding: 10,
+			minWidth: 100,
 		},
 		avatarContainer: {
 			position: "relative",
 		},
 		avatar: {
-			width: 60,
-			height: 60,
-			borderRadius: 30,
+			width: 65,
+			height: 65,
+			borderRadius: 32.5,
 			borderWidth: 2,
 			borderColor: colors.third,
+			opacity: 0.7,
 		},
 		pendingBadge: {
 			position: "absolute",
-			bottom: 0,
-			right: 0,
+			bottom: -2,
+			right: -2,
 			backgroundColor: colors.third,
-			borderRadius: 10,
-			width: 20,
-			height: 20,
+			borderRadius: 12,
+			width: 24,
+			height: 24,
 			justifyContent: "center",
 			alignItems: "center",
 			borderWidth: 2,
 			borderColor: colors.background,
-		},
-		pendingBadgeText: {
-			fontSize: 12,
-			fontWeight: "bold",
-			color: colors.primary,
 		},
 		userInfo: {
 			alignItems: "center",
 			gap: 2,
 		},
 		userName: {
-			fontSize: 12,
-			fontWeight: "600",
+			fontSize: 13,
+			fontFamily: "HossRound-Bold",
 			textAlign: "center",
 		},
-		statusText: {
-			fontSize: 10,
-			opacity: 0.6,
-			fontStyle: "italic",
+		userLastname: {
+			fontSize: 11,
+			opacity: 0.7,
+			textAlign: "center",
 		},
 	});
 
