@@ -8,7 +8,15 @@ import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import {
+	Alert,
+	KeyboardAvoidingView,
+	Platform,
+	ScrollView,
+	StyleSheet,
+	TextInput,
+	View,
+} from "react-native";
 
 export default function Members() {
 	const colors = useThemeColors();
@@ -49,147 +57,153 @@ export default function Members() {
 	}, [party.members, searchQuery]);
 
 	return (
-		<ScrollView
+		<KeyboardAvoidingView
 			style={[styles.container, { backgroundColor: colors.background }]}
-			showsVerticalScrollIndicator={false}
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
 		>
-			{/* Header Stats Card */}
-			<View style={styles.headerCard}>
-				<View style={styles.statsRow}>
-					<View style={styles.statItem}>
-						<FontAwesome6
-							name="user-check"
-							size={24}
-							color={colors.primary}
-						/>
-						<ThemedText variant="h2" style={styles.statNumber}>
-							{party.members.length}
-						</ThemedText>
-						<ThemedText style={styles.statLabel}>
-							Participants
-						</ThemedText>
+			<ScrollView
+				showsVerticalScrollIndicator={false}
+				keyboardShouldPersistTaps="handled"
+			>
+				{/* Header Stats Card */}
+				<View style={styles.headerCard}>
+					<View style={styles.statsRow}>
+						<View style={styles.statItem}>
+							<FontAwesome6
+								name="user-check"
+								size={24}
+								color={colors.primary}
+							/>
+							<ThemedText variant="h2" style={styles.statNumber}>
+								{party.members.length}
+							</ThemedText>
+							<ThemedText style={styles.statLabel}>
+								Participants
+							</ThemedText>
+						</View>
+						<View style={styles.statDivider} />
+						<View style={styles.statItem}>
+							<FontAwesome6
+								name="clock"
+								size={24}
+								color={colors.third}
+							/>
+							<ThemedText variant="h2" style={styles.statNumber}>
+								{pendingInvitations.length}
+							</ThemedText>
+							<ThemedText style={styles.statLabel}>
+								En attente
+							</ThemedText>
+						</View>
 					</View>
-					<View style={styles.statDivider} />
-					<View style={styles.statItem}>
+					<ThemedButton
+						onPress={() => setContactPickerVisible(true)}
+						style={styles.inviteButton}
+					>
 						<FontAwesome6
-							name="clock"
-							size={24}
-							color={colors.third}
+							name="user-plus"
+							size={20}
+							color={colors.white}
 						/>
-						<ThemedText variant="h2" style={styles.statNumber}>
-							{pendingInvitations.length}
+						<ThemedText color="white" style={styles.inviteButtonText}>
+							Inviter des amis
 						</ThemedText>
-						<ThemedText style={styles.statLabel}>
-							En attente
-						</ThemedText>
-					</View>
+					</ThemedButton>
 				</View>
-				<ThemedButton
-					onPress={() => setContactPickerVisible(true)}
-					style={styles.inviteButton}
-				>
-					<FontAwesome6
-						name="user-plus"
-						size={20}
-						color={colors.white}
-					/>
-					<ThemedText color="white" style={styles.inviteButtonText}>
-						Inviter des amis
-					</ThemedText>
-				</ThemedButton>
-			</View>
 
-			<View style={styles.content}>
-				{/* Pending Invitations Section */}
-				{pendingInvitations.length > 0 && (
-					<View style={styles.pendingSection}>
-						<View style={styles.pendingHeader}>
-							<View style={styles.pendingBadge}>
-								<FontAwesome6
-									name="clock"
-									size={14}
-									color={colors.primary}
-								/>
-								<ThemedText style={styles.pendingBadgeText}>
-									{pendingInvitations.length} en attente
+				<View style={styles.content}>
+					{/* Pending Invitations Section */}
+					{pendingInvitations.length > 0 && (
+						<View style={styles.pendingSection}>
+							<View style={styles.pendingHeader}>
+								<View style={styles.pendingBadge}>
+									<FontAwesome6
+										name="clock"
+										size={14}
+										color={colors.primary}
+									/>
+									<ThemedText style={styles.pendingBadgeText}>
+										{pendingInvitations.length} en attente
+									</ThemedText>
+								</View>
+							</View>
+							<ThemedText style={styles.pendingSectionDescription}>
+								Ces personnes ont été invitées et n'ont pas encore
+								répondu
+							</ThemedText>
+							<InvitedUsersList invitations={pendingInvitations} />
+						</View>
+					)}
+
+					{/* Members Section */}
+					<View style={styles.membersSection}>
+						<View style={styles.membersSectionHeader}>
+							<View>
+								<ThemedText
+									variant="h2"
+									style={styles.membersSectionTitle}
+								>
+									Membres confirmés
+								</ThemedText>
+								<ThemedText style={styles.membersSectionSubtitle}>
+									{filteredMembers.length} sur{" "}
+									{party.members.length}
+									{searchQuery ? " (filtré)" : ""}
 								</ThemedText>
 							</View>
 						</View>
-						<ThemedText style={styles.pendingSectionDescription}>
-							Ces personnes ont été invitées et n'ont pas encore
-							répondu
-						</ThemedText>
-						<InvitedUsersList invitations={pendingInvitations} />
-					</View>
-				)}
 
-				{/* Members Section */}
-				<View style={styles.membersSection}>
-					<View style={styles.membersSectionHeader}>
-						<View>
-							<ThemedText
-								variant="h2"
-								style={styles.membersSectionTitle}
-							>
-								Membres confirmés
-							</ThemedText>
-							<ThemedText style={styles.membersSectionSubtitle}>
-								{filteredMembers.length} sur{" "}
-								{party.members.length}
-								{searchQuery ? " (filtré)" : ""}
-							</ThemedText>
-						</View>
-					</View>
-
-					{/* Search Bar */}
-					<View style={styles.searchContainer}>
-						<FontAwesome6
-							name="magnifying-glass"
-							size={20}
-							color={colors.paragraphDisabled}
-							style={styles.searchIcon}
-						/>
-						<TextInput
-							style={styles.searchInput}
-							placeholder="Rechercher un participant..."
-							placeholderTextColor={colors.paragraphDisabled}
-							value={searchQuery}
-							onChangeText={setSearchQuery}
-						/>
-						{searchQuery.length > 0 && (
+						{/* Search Bar */}
+						<View style={styles.searchContainer}>
 							<FontAwesome6
-								name="xmark"
-								size={16}
+								name="magnifying-glass"
+								size={20}
 								color={colors.paragraphDisabled}
-								style={styles.clearIcon}
-								onPress={() => setSearchQuery("")}
+								style={styles.searchIcon}
+							/>
+							<TextInput
+								style={styles.searchInput}
+								placeholder="Rechercher un participant..."
+								placeholderTextColor={colors.paragraphDisabled}
+								value={searchQuery}
+								onChangeText={setSearchQuery}
+							/>
+							{searchQuery.length > 0 && (
+								<FontAwesome6
+									name="xmark"
+									size={16}
+									color={colors.paragraphDisabled}
+									style={styles.clearIcon}
+									onPress={() => setSearchQuery("")}
+								/>
+							)}
+						</View>
+
+						{filteredMembers.length === 0 ? (
+							<View style={styles.emptyState}>
+								<FontAwesome6
+									name="user-slash"
+									size={48}
+									color={colors.paragraphDisabled}
+									style={styles.emptyIcon}
+								/>
+								<ThemedText style={styles.emptyText}>
+									Aucun participant trouvé
+								</ThemedText>
+								<ThemedText style={styles.emptySubtext}>
+									Essayez avec un autre nom
+								</ThemedText>
+							</View>
+						) : (
+							<PartyMembersList
+								members={filteredMembers}
+								owner={party.owner}
 							/>
 						)}
 					</View>
-
-					{filteredMembers.length === 0 ? (
-						<View style={styles.emptyState}>
-							<FontAwesome6
-								name="user-slash"
-								size={48}
-								color={colors.paragraphDisabled}
-								style={styles.emptyIcon}
-							/>
-							<ThemedText style={styles.emptyText}>
-								Aucun participant trouvé
-							</ThemedText>
-							<ThemedText style={styles.emptySubtext}>
-								Essayez avec un autre nom
-							</ThemedText>
-						</View>
-					) : (
-						<PartyMembersList
-							members={filteredMembers}
-							owner={party.owner}
-						/>
-					)}
 				</View>
-			</View>
+			</ScrollView>
 
 			<ContactPicker
 				visible={contactPickerVisible}
@@ -200,7 +214,7 @@ export default function Members() {
 					phoneNumber: inv.invitedUser.phoneNumber,
 				}))}
 			/>
-		</ScrollView>
+		</KeyboardAvoidingView>
 	);
 }
 
