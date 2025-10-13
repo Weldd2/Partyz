@@ -91,12 +91,7 @@ const getStyles = (colors: typeof Colors.light, screenWidth: number) =>
 		},
 	});
 
-const ImageModal = memo(({
-	visible,
-	images,
-	initialIndex,
-	onClose,
-}: Props) => {
+const ImageModal = memo(({ visible, images, initialIndex, onClose }: Props) => {
 	const colors = useThemeColors();
 	const { width: screenWidth } = useWindowDimensions();
 	const styles = getStyles(colors, screenWidth);
@@ -140,15 +135,18 @@ const ImageModal = memo(({
 		onClose();
 	}, [initialIndex, onClose]);
 
-	const renderImage = useCallback(({ item }: { item: GalleryImage }) => (
-		<View style={styles.imageContainer}>
-			<Image
-				source={item.uri}
-				style={styles.modalImage}
-				contentFit="contain"
-			/>
-		</View>
-	), [styles.imageContainer, styles.modalImage]);
+	const renderImage = useCallback(
+		({ item }: { item: GalleryImage }) => (
+			<View style={styles.imageContainer}>
+				<Image
+					source={item.uri}
+					style={styles.modalImage}
+					contentFit="contain"
+				/>
+			</View>
+		),
+		[styles.imageContainer, styles.modalImage],
+	);
 
 	return (
 		<Modal
@@ -190,7 +188,7 @@ const ImageModal = memo(({
 						onPress={handleClose}
 					>
 						<FontAwesome6
-							name="times"
+							name="xmark"
 							size={20}
 							color={colors.white}
 						/>
@@ -243,6 +241,6 @@ const ImageModal = memo(({
 	);
 });
 
-ImageModal.displayName = 'ImageModal';
+ImageModal.displayName = "ImageModal";
 
 export default ImageModal;

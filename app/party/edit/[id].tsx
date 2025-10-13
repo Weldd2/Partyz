@@ -17,6 +17,8 @@ import {
 	StyleSheet,
 	View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 export default function EditParty() {
 	const colors = useThemeColors();
@@ -181,9 +183,13 @@ export default function EditParty() {
 						headerShadowVisible: false,
 					}}
 				/>
-				<View style={[styles.container, styles.loadingContainer]}>
-					<ThemedText>Chargement...</ThemedText>
-				</View>
+				<GestureHandlerRootView style={{ flex: 1 }}>
+					<BottomSheetModalProvider>
+						<View style={[styles.container, styles.loadingContainer]}>
+							<ThemedText>Chargement...</ThemedText>
+						</View>
+					</BottomSheetModalProvider>
+				</GestureHandlerRootView>
 			</>
 		);
 	}
@@ -204,10 +210,12 @@ export default function EditParty() {
 					headerShadowVisible: false,
 				}}
 			/>
-			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-			>
+			<GestureHandlerRootView style={{ flex: 1 }}>
+				<BottomSheetModalProvider>
+					<KeyboardAvoidingView
+						style={styles.container}
+						behavior={Platform.OS === "ios" ? "padding" : "height"}
+					>
 				<ScrollView
 					style={styles.content}
 					contentContainerStyle={styles.scrollContent}
@@ -337,7 +345,9 @@ export default function EditParty() {
 						onPress={() => router.back()}
 					/>
 				</View>
-			</KeyboardAvoidingView>
+				</KeyboardAvoidingView>
+				</BottomSheetModalProvider>
+			</GestureHandlerRootView>
 		</>
 	);
 }

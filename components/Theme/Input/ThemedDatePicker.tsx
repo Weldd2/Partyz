@@ -2,8 +2,13 @@ import { Colors } from "@/constants/colors";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useState } from "react";
-import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
+import {
+	BottomSheetBackdrop,
+	BottomSheetModal,
+	BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { useCallback, useRef, useState } from "react";
+import { Keyboard, Platform, Pressable, StyleSheet, View } from "react-native";
 import ThemedButton from "../ThemedButton";
 import ThemedText from "../ThemedText";
 
@@ -44,23 +49,20 @@ const getStyles = (colors: typeof Colors.light) =>
 			fontSize: 14,
 			marginTop: 4,
 		},
-		modalOverlay: {
-			flex: 1,
-			backgroundColor: "rgba(0, 0, 0, 0.5)",
-			justifyContent: "flex-end",
-		},
-		modalContent: {
-			backgroundColor: colors.white,
-			borderTopLeftRadius: 20,
-			borderTopRightRadius: 20,
-			padding: 20,
+		contentContainer: {
+			paddingHorizontal: 20,
 			paddingBottom: 40,
 		},
-		modalHeader: {
+		header: {
 			flexDirection: "row",
 			justifyContent: "space-between",
 			alignItems: "center",
 			marginBottom: 20,
+		},
+		pickerContainer: {
+			width: "100%",
+			justifyContent: "center",
+			alignItems: "center",
 		},
 	});
 
@@ -85,6 +87,7 @@ export default function ThemedDatePicker({
 }: Props) {
 	const colors = useThemeColors();
 	const styles = getStyles(colors);
+	const bottomSheetRef = useRef<BottomSheetModal>(null);
 	const [showPicker, setShowPicker] = useState(false);
 	const [showTimePicker, setShowTimePicker] = useState(false);
 	const [tempDate, setTempDate] = useState(value || new Date());
@@ -139,20 +142,38 @@ export default function ThemedDatePicker({
 		}
 	};
 
-	const handleConfirm = () => {
+	const handleConfirm = useCallback(() => {
 		onChange(tempDate);
-		setShowPicker(false);
-	};
+		bottomSheetRef.current?.dismiss();
+	}, [tempDate, onChange]);
 
-	const handleCancel = () => {
+	const handleCancel = useCallback(() => {
 		setTempDate(value || new Date());
-		setShowPicker(false);
-	};
+		bottomSheetRef.current?.dismiss();
+	}, [value]);
 
-	const handlePress = () => {
+	const handlePress = useCallback(() => {
+		Keyboard.dismiss();
 		setTempDate(value || new Date());
-		setShowPicker(true);
-	};
+		if (Platform.OS === "ios") {
+			bottomSheetRef.current?.present();
+		} else {
+			setShowPicker(true);
+		}
+	}, [value]);
+
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				disappearsOnIndex={-1}
+				appearsOnIndex={0}
+				opacity={0.5}
+				pressBehavior="close"
+			/>
+		),
+		[],
+	);
 
 	// On Android, the picker shows as a dialog automatically
 	const renderAndroidPicker = () => {
@@ -181,59 +202,53 @@ export default function ThemedDatePicker({
 		);
 	};
 
-	// On iOS, we show the picker in a modal at the bottom
-	const renderIOSPicker = () => {
-		if (!showPicker) return null;
-
+	// On iOS, we show the picker in a bottom sheet modal
+	const renderIOSBottomSheet = () => {
 		return (
-			<Modal
-				visible={showPicker}
-				transparent
-				animationType="slide"
-				onRequestClose={handleCancel}
+			<BottomSheetModal
+				ref={bottomSheetRef}
+				snapPoints={["50%"]}
+				enablePanDownToClose
+				onDismiss={handleCancel}
+				backdropComponent={renderBackdrop}
+				backgroundStyle={{
+					backgroundColor: colors.white,
+				}}
+				handleIndicatorStyle={{
+					backgroundColor: colors.paragraphDisabled,
+				}}
+				keyboardBehavior="extend"
+				keyboardBlurBehavior="restore"
 			>
-				<Pressable style={styles.modalOverlay} onPress={handleCancel}>
-					<Pressable onPress={(e) => e.stopPropagation()}>
-						<View style={styles.modalContent}>
-							<View style={styles.modalHeader}>
-								<ThemedButton
-									text="Annuler"
-									variant="primary2"
-									onPress={handleCancel}
-								/>
-								<ThemedText variant="h2">
-									{mode === "time"
-										? "Heure"
-										: mode === "date"
-											? "Date"
-											: "Date et heure"}
-								</ThemedText>
-								<ThemedButton
-									text="Confirmer"
-									onPress={handleConfirm}
-								/>
-							</View>
-							<View
-								style={{
-									width: "100%",
-									justifyContent: "center",
-									alignItems: "center",
-								}}
-							>
-								<DateTimePicker
-									value={tempDate}
-									mode={mode}
-									textColor={colors.primary}
-									is24Hour={true}
-									locale="FR-fr"
-									display="spinner"
-									onChange={handleDateChange}
-								/>
-							</View>
-						</View>
-					</Pressable>
-				</Pressable>
-			</Modal>
+				<BottomSheetView style={styles.contentContainer}>
+					<View style={styles.header}>
+						<ThemedButton
+							text="Annuler"
+							variant="primary2"
+							onPress={handleCancel}
+						/>
+						<ThemedText variant="h2">
+							{mode === "time"
+								? "Heure"
+								: mode === "date"
+									? "Date"
+									: "Date et heure"}
+						</ThemedText>
+						<ThemedButton text="Confirmer" onPress={handleConfirm} />
+					</View>
+					<View style={styles.pickerContainer}>
+						<DateTimePicker
+							value={tempDate}
+							mode={mode}
+							textColor={colors.primary}
+							is24Hour={true}
+							locale="FR-fr"
+							display="spinner"
+							onChange={handleDateChange}
+						/>
+					</View>
+				</BottomSheetView>
+			</BottomSheetModal>
 		);
 	};
 
@@ -260,7 +275,7 @@ export default function ThemedDatePicker({
 			</Pressable>
 			{error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
 
-			{Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
+			{Platform.OS === "ios" ? renderIOSBottomSheet() : renderAndroidPicker()}
 		</View>
 	);
 }
