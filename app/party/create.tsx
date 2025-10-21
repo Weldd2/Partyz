@@ -16,6 +16,8 @@ import {
 	StyleSheet,
 	View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 export default function CreateParty() {
 	const colors = useThemeColors();
@@ -164,134 +166,138 @@ export default function CreateParty() {
 					headerShadowVisible: false,
 				}}
 			/>
-			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-			>
-				<ScrollView
-					style={styles.content}
-					contentContainerStyle={styles.scrollContent}
-				>
-					<View style={styles.section}>
-						<ThemedText variant="h2" style={styles.sectionTitle}>
-							Informations principales
-						</ThemedText>
-						<ThemedTextInput
-							label="Titre de la party"
-							placeholder="Ex: Anniversaire de Marie"
-							value={title}
-							onChangeText={(text) => {
-								setTitle(text);
-								setErrors({ ...errors, title: "" });
-							}}
-							error={errors.title}
-							autoFocus
-						/>
-						<ThemedTextInput
-							label="Adresse"
-							placeholder="Ex: 123 rue de la Fête, Paris"
-							value={address}
-							onChangeText={(text) => {
-								setAddress(text);
-								setErrors({ ...errors, address: "" });
-							}}
-							error={errors.address}
-							multiline
-							numberOfLines={2}
-						/>
-						<ThemedDatePicker
-							label="Date et heure"
-							placeholder="Sélectionner une date"
-							value={date}
-							onChange={(selectedDate) => {
-								setDate(selectedDate);
-								setErrors({ ...errors, date: "" });
-							}}
-							error={errors.date}
-							mode="datetime"
-						/>
-					</View>
-
-					<View style={styles.section}>
-						<View
-							style={{
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-							}}
+			<GestureHandlerRootView style={{ flex: 1 }}>
+				<BottomSheetModalProvider>
+					<KeyboardAvoidingView
+						style={styles.container}
+						behavior={Platform.OS === "ios" ? "padding" : "height"}
+					>
+						<ScrollView
+							style={styles.content}
+							contentContainerStyle={styles.scrollContent}
 						>
-							<ThemedText variant="h2" style={styles.sectionTitle}>
-								Participants
-							</ThemedText>
-							<Pressable onPress={handleAddMembers}>
-								<FontAwesome6
-									name="plus-circle"
-									size={28}
-									color={colors.primary}
-								/>
-							</Pressable>
-						</View>
-						<View style={styles.membersContainer}>
-							{members.length === 0 ? (
-								<ThemedText style={styles.membersPlaceholder}>
-									Aucun participant ajouté.{"\n"}
-									Appuyez sur + pour en ajouter
+							<View style={styles.section}>
+								<ThemedText variant="h2" style={styles.sectionTitle}>
+									Informations principales
 								</ThemedText>
-							) : (
-								<View style={styles.membersList}>
-									{members.map((member) => (
-										<View
-											key={member.id}
-											style={styles.memberChip}
-										>
-											<ThemedText>
-												{member.firstname}{" "}
-												{member.lastname}
-											</ThemedText>
-											<Pressable
-												onPress={() => {
-													setMembers(
-														members.filter(
-															(m) =>
-																m.id !==
-																member.id,
-														),
-													);
-												}}
-											>
-												<FontAwesome6
-													name="times"
-													size={14}
-													color={colors.primary}
-												/>
-											</Pressable>
-										</View>
-									))}
-								</View>
-							)}
-						</View>
-						<ThemedText
-							style={{
-								fontSize: 14,
-								color: colors.paragraphDisabled,
-								fontStyle: "italic",
-							}}
-						>
-							Note: Vous pourrez gérer la liste de courses après
-							la création de la party
-						</ThemedText>
-					</View>
-				</ScrollView>
+								<ThemedTextInput
+									label="Titre de la party"
+									placeholder="Ex: Anniversaire de Marie"
+									value={title}
+									onChangeText={(text) => {
+										setTitle(text);
+										setErrors({ ...errors, title: "" });
+									}}
+									error={errors.title}
+									autoFocus
+								/>
+								<ThemedTextInput
+									label="Adresse"
+									placeholder="Ex: 123 rue de la Fête, Paris"
+									value={address}
+									onChangeText={(text) => {
+										setAddress(text);
+										setErrors({ ...errors, address: "" });
+									}}
+									error={errors.address}
+									multiline
+									numberOfLines={2}
+								/>
+								<ThemedDatePicker
+									label="Date et heure"
+									placeholder="Sélectionner une date"
+									value={date}
+									onChange={(selectedDate) => {
+										setDate(selectedDate);
+										setErrors({ ...errors, date: "" });
+									}}
+									error={errors.date}
+									mode="datetime"
+								/>
+							</View>
 
-				<View style={styles.buttonContainer}>
-					<ThemedButton text="Créer la party" onPress={handleSubmit} />
-					<ThemedButton
-						text="Annuler"
-						variant="primary2"
-						onPress={() => router.back()}
-					/>
-				</View>
-			</KeyboardAvoidingView>
+							<View style={styles.section}>
+								<View
+									style={{
+										flexDirection: "row",
+										justifyContent: "space-between",
+										alignItems: "center",
+									}}
+								>
+									<ThemedText variant="h2" style={styles.sectionTitle}>
+										Participants
+									</ThemedText>
+									<Pressable onPress={handleAddMembers}>
+										<FontAwesome6
+											name="plus-circle"
+											size={28}
+											color={colors.primary}
+										/>
+									</Pressable>
+								</View>
+								<View style={styles.membersContainer}>
+									{members.length === 0 ? (
+										<ThemedText style={styles.membersPlaceholder}>
+											Aucun participant ajouté.{"\n"}
+											Appuyez sur + pour en ajouter
+										</ThemedText>
+									) : (
+										<View style={styles.membersList}>
+											{members.map((member) => (
+												<View
+													key={member.id}
+													style={styles.memberChip}
+												>
+													<ThemedText>
+														{member.firstname}{" "}
+														{member.lastname}
+													</ThemedText>
+													<Pressable
+														onPress={() => {
+															setMembers(
+																members.filter(
+																	(m) =>
+																		m.id !==
+																		member.id,
+																),
+															);
+														}}
+													>
+														<FontAwesome6
+															name="times"
+															size={14}
+															color={colors.primary}
+														/>
+													</Pressable>
+												</View>
+											))}
+										</View>
+									)}
+								</View>
+								<ThemedText
+									style={{
+										fontSize: 14,
+										color: colors.paragraphDisabled,
+										fontStyle: "italic",
+									}}
+								>
+									Note: Vous pourrez gérer la liste de courses après
+									la création de la party
+								</ThemedText>
+							</View>
+						</ScrollView>
+
+						<View style={styles.buttonContainer}>
+							<ThemedButton text="Créer la party" onPress={handleSubmit} />
+							<ThemedButton
+								text="Annuler"
+								variant="primary2"
+								onPress={() => router.back()}
+							/>
+						</View>
+					</KeyboardAvoidingView>
+				</BottomSheetModalProvider>
+			</GestureHandlerRootView>
 		</>
 	);
 }
