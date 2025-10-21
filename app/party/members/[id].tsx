@@ -3,11 +3,15 @@ import InvitedUsersList from "@/components/InvitedUsersList";
 import PartyMembersList from "@/components/PartyMembersList";
 import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
+import UserDetailsBottomSheet from "@/components/UserDetailsBottomSheet";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
+import { UserInterface } from "@/types/UserInterface";
+import { InvitationInterface } from "@/types/InvitationInterface";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
 	Alert,
 	KeyboardAvoidingView,
@@ -24,6 +28,19 @@ export default function Members() {
 	const { id } = useLocalSearchParams();
 	const [contactPickerVisible, setContactPickerVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [members, setMembers] = useState(partiesFixture.member[0].members);
+	const [invitations, setInvitations] = useState(
+		partiesFixture.member[0].invitations,
+	);
+
+	// Bottom sheet states
+	const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
+	const [selectedInvitation, setSelectedInvitation] =
+		useState<InvitationInterface | null>(null);
+	const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+	const [bottomSheetType, setBottomSheetType] = useState<"member" | "invitation">(
+		"member",
+	);
 
 	// In a real app, you would fetch the party data based on the id
 	const party = partiesFixture.member[0];
@@ -41,27 +58,63 @@ export default function Members() {
 		[],
 	);
 
+	const handleSelectMember = useCallback((member: UserInterface) => {
+		setSelectedUser(member);
+		setSelectedInvitation(null);
+		setBottomSheetType("member");
+		setBottomSheetVisible(true);
+	}, []);
+
+	const handleSelectInvitation = useCallback(
+		(invitation: InvitationInterface) => {
+			setSelectedInvitation(invitation);
+			setSelectedUser(invitation.invitedUser);
+			setBottomSheetType("invitation");
+			setBottomSheetVisible(true);
+		},
+		[],
+	);
+
+	const handleDeleteMember = useCallback(() => {
+		if (!selectedUser) return;
+		setMembers((prevMembers) =>
+			prevMembers.filter((m) => m.id !== selectedUser.id),
+		);
+		setBottomSheetVisible(false);
+		console.log("Member deleted:", selectedUser.id);
+	}, [selectedUser]);
+
+	const handleCancelInvitation = useCallback(() => {
+		if (!selectedInvitation) return;
+		setInvitations((prevInvitations) =>
+			prevInvitations.filter((inv) => inv.id !== selectedInvitation.id),
+		);
+		setBottomSheetVisible(false);
+		console.log("Invitation cancelled:", selectedInvitation.id);
+	}, [selectedInvitation]);
+
 	const pendingInvitations = useMemo(
-		() => party.invitations.filter((inv) => inv.status === "pending"),
-		[party.invitations],
+		() => invitations.filter((inv) => inv.status === "pending"),
+		[invitations],
 	);
 
 	const filteredMembers = useMemo(() => {
-		if (!searchQuery.trim()) return party.members;
+		if (!searchQuery.trim()) return members;
 		const query = searchQuery.toLowerCase();
-		return party.members.filter(
+		return members.filter(
 			(member) =>
 				member.firstname.toLowerCase().includes(query) ||
 				member.lastname.toLowerCase().includes(query),
 		);
-	}, [party.members, searchQuery]);
+	}, [members, searchQuery]);
 
 	return (
-		<KeyboardAvoidingView
-			style={[styles.container, { backgroundColor: colors.background }]}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
-		>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<KeyboardAvoidingView
+				style={[styles.container, { backgroundColor: colors.background }]}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+			>
 			<ScrollView
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
@@ -76,7 +129,7 @@ export default function Members() {
 								color={colors.primary}
 							/>
 							<ThemedText variant="h2" style={styles.statNumber}>
-								{party.members.length}
+								{members.length}
 							</ThemedText>
 							<ThemedText style={styles.statLabel}>
 								Participants
@@ -132,7 +185,10 @@ export default function Members() {
 								Ces personnes ont été invitées et n'ont pas encore
 								répondu
 							</ThemedText>
-							<InvitedUsersList invitations={pendingInvitations} />
+							<InvitedUsersList
+								invitations={pendingInvitations}
+								onSelectInvitation={handleSelectInvitation}
+							/>
 						</View>
 					)}
 
@@ -148,7 +204,7 @@ export default function Members() {
 								</ThemedText>
 								<ThemedText style={styles.membersSectionSubtitle}>
 									{filteredMembers.length} sur{" "}
-									{party.members.length}
+									{members.length}
 									{searchQuery ? " (filtré)" : ""}
 								</ThemedText>
 							</View>
@@ -199,6 +255,7 @@ export default function Members() {
 							<PartyMembersList
 								members={filteredMembers}
 								owner={party.owner}
+								onSelectMember={handleSelectMember}
 							/>
 						)}
 					</View>
@@ -209,12 +266,23 @@ export default function Members() {
 				visible={contactPickerVisible}
 				onClose={() => setContactPickerVisible(false)}
 				onInvite={handleInvite}
-				existingMembers={party.members}
-				existingInvitations={party.invitations.map((inv) => ({
+				existingMembers={members}
+				existingInvitations={invitations.map((inv) => ({
 					phoneNumber: inv.invitedUser.phoneNumber,
 				}))}
 			/>
+
+		<UserDetailsBottomSheet
+			visible={bottomSheetVisible}
+			user={selectedUser}
+			type={bottomSheetType}
+			owner={party.owner}
+			onClose={() => setBottomSheetVisible(false)}
+			onDelete={handleDeleteMember}
+			onCancel={handleCancelInvitation}
+		/>
 		</KeyboardAvoidingView>
+	</GestureHandlerRootView>
 	);
 }
 

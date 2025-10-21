@@ -4,7 +4,6 @@ import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
-import { UserInterface } from "@/types/UserInterface";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -12,7 +11,6 @@ import {
 	Alert,
 	KeyboardAvoidingView,
 	Platform,
-	Pressable,
 	ScrollView,
 	StyleSheet,
 	View,
@@ -28,7 +26,6 @@ export default function EditParty() {
 	const [title, setTitle] = useState("");
 	const [address, setAddress] = useState("");
 	const [date, setDate] = useState<Date | undefined>(undefined);
-	const [members, setMembers] = useState<UserInterface[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
 	const [errors, setErrors] = useState({
@@ -44,7 +41,6 @@ export default function EditParty() {
 			setTitle(party.title);
 			setAddress(party.address);
 			setDate(new Date(party.date));
-			setMembers(party.members);
 		}
 		setIsLoading(false);
 	}, [id]);
@@ -84,7 +80,6 @@ export default function EditParty() {
 			title,
 			address,
 			date: date?.toISOString(),
-			members,
 		};
 
 		console.log("Party data to update:", partyData);
@@ -97,12 +92,8 @@ export default function EditParty() {
 		]);
 	};
 
-	const handleAddMembers = () => {
-		// TODO: Navigate to member selection screen
-		Alert.alert(
-			"En construction",
-			"La sélection des membres sera disponible prochainement",
-		);
+	const handleManageMembers = () => {
+		router.push(`/party/members/${id}`);
 	};
 
 	const styles = StyleSheet.create({
@@ -124,33 +115,24 @@ export default function EditParty() {
 			fontSize: 18,
 			marginTop: 10,
 		},
-		membersContainer: {
-			backgroundColor: colors.white,
-			borderRadius: 8,
-			borderWidth: 1,
-			borderColor: colors.primary,
-			padding: 16,
-			minHeight: 100,
+		manageButton: {
+			paddingVertical: 14,
+		},
+		buttonContent: {
+			flexDirection: "row",
+			alignItems: "center",
 			justifyContent: "center",
-			alignItems: "center",
+			gap: 10,
 		},
-		membersPlaceholder: {
-			textAlign: "center",
+		buttonText: {
+			fontSize: 16,
+			fontFamily: "HossRound-Bold",
+		},
+		helpText: {
+			fontSize: 14,
 			color: colors.paragraphDisabled,
-		},
-		membersList: {
-			flexDirection: "row",
-			flexWrap: "wrap",
-			gap: 8,
-		},
-		memberChip: {
-			flexDirection: "row",
-			alignItems: "center",
-			backgroundColor: colors.secondary,
-			paddingVertical: 6,
-			paddingHorizontal: 12,
-			borderRadius: 16,
-			gap: 6,
+			fontStyle: "italic",
+			lineHeight: 20,
 		},
 		buttonContainer: {
 			padding: 20,
@@ -261,75 +243,31 @@ export default function EditParty() {
 					</View>
 
 					<View style={styles.section}>
-						<View
-							style={{
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-							}}
+						<ThemedText variant="h2" style={styles.sectionTitle}>
+							Participants et invitations
+						</ThemedText>
+						<ThemedButton
+							variant="primary2"
+							onPress={handleManageMembers}
+							style={styles.manageButton}
 						>
-							<ThemedText
-								variant="h2"
-								style={styles.sectionTitle}
-							>
-								Participants
-							</ThemedText>
-							<Pressable onPress={handleAddMembers}>
+							<View style={styles.buttonContent}>
 								<FontAwesome6
 									name="user-group"
-									size={20}
+									size={18}
 									color={colors.primary}
 								/>
-							</Pressable>
-						</View>
-						<View style={styles.membersContainer}>
-							{members.length === 0 ? (
-								<ThemedText style={styles.membersPlaceholder}>
-									Aucun participant ajouté.{"\n"}
-									Appuyez sur + pour en ajouter
+								<ThemedText
+									style={styles.buttonText}
+									color="primary"
+								>
+									Gérer les participants
 								</ThemedText>
-							) : (
-								<View style={styles.membersList}>
-									{members.map((member) => (
-										<View
-											key={member.id}
-											style={styles.memberChip}
-										>
-											<ThemedText>
-												{member.firstname}{" "}
-												{member.lastname}
-											</ThemedText>
-											<Pressable
-												onPress={() => {
-													setMembers(
-														members.filter(
-															(m) =>
-																m.id !==
-																member.id,
-														),
-													);
-												}}
-											>
-												<FontAwesome6
-													name="xmark"
-													size={14}
-													color={colors.primary}
-												/>
-											</Pressable>
-										</View>
-									))}
-								</View>
-							)}
-						</View>
-						<ThemedText
-							style={{
-								fontSize: 14,
-								color: colors.paragraphDisabled,
-								fontStyle: "italic",
-							}}
-						>
-							Note: Vous pourrez gérer la liste de courses dans
-							l'écran de détails
+							</View>
+						</ThemedButton>
+						<ThemedText style={styles.helpText}>
+							Invitez des amis, gérez les participants confirmés et
+							suivez les invitations en attente
 						</ThemedText>
 					</View>
 				</ScrollView>

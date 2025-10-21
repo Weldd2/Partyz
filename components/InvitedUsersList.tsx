@@ -4,14 +4,16 @@ import { InvitationInterface } from "@/types/InvitationInterface";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "expo-image";
 import { memo, useMemo } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
 interface InvitedUsersListProps {
 	invitations: Array<InvitationInterface>;
+	onSelectInvitation?: (invitation: InvitationInterface) => void;
 }
 
 const InvitedUsersList = memo(function InvitedUsersList({
 	invitations,
+	onSelectInvitation,
 }: InvitedUsersListProps) {
 	const colors = useThemeColors();
 	const styles = useMemo(() => getStyles(colors), [colors]);
@@ -26,7 +28,13 @@ const InvitedUsersList = memo(function InvitedUsersList({
 	}
 
 	const renderInvitation = ({ item }: { item: InvitationInterface }) => (
-		<View style={styles.invitationCard}>
+		<Pressable
+			style={({ pressed }) => [
+				styles.invitationCard,
+				pressed && styles.invitationCardPressed,
+			]}
+			onPress={() => onSelectInvitation?.(item)}
+		>
 			<View style={styles.avatarContainer}>
 				<Image
 					source={`https://i.pravatar.cc/150?u=${item.invitedUser.id}`}
@@ -49,7 +57,7 @@ const InvitedUsersList = memo(function InvitedUsersList({
 					{item.invitedUser.lastname}
 				</ThemedText>
 			</View>
-		</View>
+		</Pressable>
 	);
 
 	return (
@@ -82,6 +90,10 @@ const getStyles = (colors: ReturnType<typeof useThemeColors>) =>
 			borderRadius: 10,
 			padding: 10,
 			minWidth: 100,
+		},
+		invitationCardPressed: {
+			opacity: 0.7,
+			transform: [{ scale: 0.95 }],
 		},
 		avatarContainer: {
 			position: "relative",

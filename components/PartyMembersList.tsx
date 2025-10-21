@@ -9,11 +9,13 @@ import { FlatList, Pressable, StyleSheet, View } from "react-native";
 interface PartyMembersListProps {
 	members: Array<UserInterface>;
 	owner: UserInterface;
+	onSelectMember?: (member: UserInterface) => void;
 }
 
 const PartyMembersList = memo(function PartyMembersList({
 	members,
 	owner,
+	onSelectMember,
 }: PartyMembersListProps) {
 	const colors = useThemeColors();
 	const styles = useMemo(() => getStyles(colors), [colors]);
@@ -28,6 +30,7 @@ const PartyMembersList = memo(function PartyMembersList({
 					pressed && styles.memberCardPressed,
 					isOwner && styles.ownerCard,
 				]}
+				onPress={() => onSelectMember?.(item)}
 			>
 				<View style={styles.avatarContainer}>
 					<Image
