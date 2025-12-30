@@ -1,10 +1,10 @@
 export interface ApiInterface {
-	'@type': string;
-	'@id': string;	
-};
+	"@id": string;
+	"@type": string;
+}
 
 export interface ApiCollectionInterface<T> extends ApiInterface {
-	'@context': string;
+	"@context": string;
 	totalItems: number;
 	member: Array<T>;
 }

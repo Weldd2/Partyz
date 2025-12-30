@@ -9,7 +9,7 @@ import ThemedCarousel from "./Theme/ThemedCarousel";
 import ThemedText from "./Theme/ThemedText";
 
 type Props = {
-	users: Array<UserInterface>;
+	users: UserInterface[];
 };
 
 const fixturesPictures = [
@@ -58,7 +58,7 @@ const UserSlider = memo(({ users }: Props) => {
 				</View>
 			);
 		},
-		[styles]
+		[styles],
 	);
 
 	return (
@@ -73,7 +73,7 @@ const UserSlider = memo(({ users }: Props) => {
 	);
 });
 
-UserSlider.displayName = 'UserSlider';
+UserSlider.displayName = "UserSlider";
 
 const getStyles = (colors: typeof Colors.light) =>
 	StyleSheet.create({

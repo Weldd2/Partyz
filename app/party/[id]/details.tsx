@@ -7,20 +7,33 @@ import SliderButtons from "@/components/Theme/SliderButtons";
 import ThemedButton from "@/components/Theme/ThemedButton";
 import ThemedText from "@/components/Theme/ThemedText";
 import UserSlider from "@/components/UserSlider";
-import partiesFixture from "@/fixtures/parties";
+import useApi from "@/hooks/useApi";
 import useThemeColors from "@/hooks/useThemeColors";
+import { PartyInterface } from "@/types/PartyInterface";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
-
-const party = partiesFixture.member[0];
+import { ScrollView, View, Text } from "react-native";
 
 export default function Detail() {
 	const colors = useThemeColors();
 	const router = useRouter();
 	const { id } = useLocalSearchParams();
 	const [activeView, setActiveView] = useState("carte");
+	const {
+		isLoading,
+		error,
+		data: party,
+	} = useApi<PartyInterface>("party", `/parties/${id}`);
+
+	if (isLoading) {
+		return <Text>is loading</Text>;
+	}
+
+	if (error || !party) {
+		console.log(error);
+		return <Text>error</Text>;
+	}
 
 	return (
 		<ScrollView style={{ backgroundColor: colors.background }}>
@@ -67,7 +80,11 @@ export default function Detail() {
 							onPress={() => setActiveView("calendrier")}
 						/>
 					</SliderButtons>
-					{activeView === "carte" ? <Map /> : <Calendar party={party} />}
+					{activeView === "carte" ? (
+						<Map />
+					) : (
+						<Calendar party={party} />
+					)}
 				</View>
 				<View style={{ gap: 30 }}>
 					<ThemedText
@@ -91,14 +108,9 @@ export default function Detail() {
 								flexDirection: "row",
 								gap: 10,
 							}}
-							onPress={() => {
-								router.push(`/party/members/${id}`);
-							}}
+							onPress={() => {}}
 						>
-							<ThemedText
-								color="white"
-								style={{ fontSize: 16 }}
-							>
+							<ThemedText color="white" style={{ fontSize: 16 }}>
 								Voir tous les participants
 							</ThemedText>
 							<FontAwesome6
@@ -109,49 +121,7 @@ export default function Detail() {
 						</ThemedButton>
 					</View>
 				</View>
-				<View style={{ gap: 30 }}>
-					<ThemedText
-						variant="h2"
-						style={{
-							textTransform: "uppercase",
-							paddingTop: 40,
-							textAlign: "center",
-						}}
-					>
-						Liste de courses
-					</ThemedText>
-					<ShoppingListSummary data={party.shoppingList} />
-
-					{party.shoppingList.length > 4 ? (
-						<View
-							style={{
-								alignSelf: "center",
-							}}
-						>
-							<ThemedButton
-								style={{
-									flexDirection: "row",
-									gap: 10,
-								}}
-								onPress={() => {
-									router.push(`/party/shopping-list/${id}`);
-								}}
-							>
-								<ThemedText
-									color="white"
-									style={{ fontSize: 16 }}
-								>
-									Voir la liste de courses
-								</ThemedText>
-								<FontAwesome6
-									size={20}
-									name="arrow-right"
-									color={colors.white}
-								/>
-							</ThemedButton>
-						</View>
-					) : null}
-				</View>
+				<ShoppingListSummary partyId={id} />
 			</View>
 		</ScrollView>
 	);

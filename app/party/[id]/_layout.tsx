@@ -10,8 +10,10 @@ import {
 	withLayoutContext,
 } from "expo-router";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useApi from "@/hooks/useApi";
+import { PartyInterface } from "@/types/PartyInterface";
 
 const { Navigator } = createMaterialTopTabNavigator();
 export const MaterialTopTabs = withLayoutContext(Navigator);
@@ -21,11 +23,20 @@ export default function PartyLayout() {
 	const router = useRouter();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const [activeTab, setActiveTab] = useState<string>("details");
+	const {
+		isLoading,
+		error,
+		data: party,
+	} = useApi<PartyInterface>("party", `/parties/${id}`);
 
-	// Get party data to display title
-	const party = partiesFixture.member.find((p) => p.id === id);
-	const partyTitle = party ? party.title : "Ma party";
+	if (isLoading) {
+		return <Text>is loading</Text>;
+	}
 
+	if (error || !party) {
+		console.log(error);
+		return <Text>error</Text>;
+	}
 	const handleEdit = () => {
 		router.push(`/party/edit/${id}`);
 	};
@@ -34,7 +45,7 @@ export default function PartyLayout() {
 		<View style={{ flex: 1, backgroundColor: colors.background }}>
 			<Stack.Screen
 				options={{
-					title: partyTitle,
+					title: party?.title,
 					headerStyle: {
 						backgroundColor: colors.primary,
 					},

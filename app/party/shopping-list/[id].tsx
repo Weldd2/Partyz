@@ -1,7 +1,6 @@
 import ShoppingListItemBottomSheet from "@/components/ShoppingListItemBottomSheet";
 import ThemedTextInput from "@/components/Theme/Input/ThemedTextInput";
 import ThemedText from "@/components/Theme/ThemedText";
-import partiesFixture from "@/fixtures/parties";
 import useThemeColors from "@/hooks/useThemeColors";
 import { ShoppingListInterface } from "@/types/ShoppingListItem";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -15,8 +14,12 @@ import {
 	Pressable,
 	StyleSheet,
 	View,
+	Text,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import useApi from "@/hooks/useApi";
+import { PartyInterface } from "@/types/PartyInterface";
+import { ApiCollectionInterface } from "@/types/ApiInterface";
 
 type SortOption = "default" | "completed" | "name";
 
@@ -26,12 +29,24 @@ export default function ShoppingList() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 
-	// Get party data
-	const party = partiesFixture.member.find((p) => p.id === id);
-	const partyTitle = party ? party.title : "Shopping List";
-	const [shoppingList, setShoppingList] = useState<ShoppingListInterface[]>(
-		party?.shoppingList || [],
+	const {
+		isLoading: isPartyLoading,
+		error: isPartyError,
+		data: party,
+	} = useApi<PartyInterface>("party", `/parties/${id}`);
+
+	const {
+		isLoading: isShoppingListLoading,
+		error: isShoppingListError,
+		data: apiResponse,
+	} = useApi<ApiCollectionInterface<ShoppingListInterface>>(
+		"shoppingList",
+		`/parties/${id}/shoppingListItem`,
 	);
+
+	const shoppingListItems = apiResponse?.member;
+
+	const partyTitle = party ? party.title : "Shopping List";
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedItem, setSelectedItem] =
 		useState<ShoppingListInterface | null>(null);
@@ -77,15 +92,15 @@ export default function ShoppingList() {
 
 	// Apply sorting only when sortBy changes or on initial load
 	useEffect(() => {
-		setSortedList(sortItems(shoppingList));
-	}, [sortBy, sortItems, shoppingList.length]);
+		setSortedList(sortItems(shoppingListItems));
+	}, [sortBy, sortItems, shoppingListItems]);
 
 	// Keep sortedList in sync with shoppingList changes (updates only, not re-sorting)
 	useEffect(() => {
 		setSortedList((prevSorted) => {
 			// Create a map of current shopping list items by id for quick lookup
 			const shoppingMap = new Map(
-				shoppingList.map((item) => [item.id, item]),
+				shoppingListItems.map((item) => [item.id, item]),
 			);
 
 			// Update existing items in sortedList with new data from shoppingList
@@ -95,7 +110,7 @@ export default function ShoppingList() {
 					(item): item is ShoppingListInterface => item !== undefined,
 				);
 		});
-	}, [shoppingList]);
+	}, [shoppingListItems]);
 
 	// Filter items based on search (no sorting here)
 	const filteredItems = useMemo(() => {
@@ -428,6 +443,16 @@ export default function ShoppingList() {
 		);
 	};
 
+	if (isPartyLoading || isShoppingListLoading) {
+		return <Text>is loading</Text>;
+	}
+
+	if (isPartyError || !party || isShoppingListError || !shoppingListItems) {
+		console.log(isPartyError);
+		console.log(isShoppingListError);
+		return <Text>error</Text>;
+	}
+
 	return (
 		<View style={{ flex: 1, backgroundColor: colors.background }}>
 			<Stack.Screen
@@ -523,7 +548,7 @@ export default function ShoppingList() {
 									}}
 								>
 									<ThemedText style={{ fontSize: 14 }}>
-										Complétés d'abord
+										Complétés d&apos;abord
 									</ThemedText>
 								</Pressable>
 								<View style={styles.sortMenuDivider} />
